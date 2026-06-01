@@ -1,6 +1,3 @@
-# Frontend has its own git repository
-frontend/
-
 # IDE files
 .idea/
 *.iml
