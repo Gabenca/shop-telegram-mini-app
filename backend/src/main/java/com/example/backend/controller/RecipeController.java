@@ -1,13 +1,18 @@
 package com.example.backend.controller;
 
+import com.example.backend.domain.User;
 import com.example.backend.dto.CreateRecipeRequest;
 import com.example.backend.dto.RecipeDto;
+import com.example.backend.repository.UserRepository;
 import com.example.backend.service.RecipeService;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Collections;
 import java.util.List;
 
 @RestController
@@ -16,10 +21,17 @@ import java.util.List;
 public class RecipeController {
 
     private final RecipeService recipeService;
+    private final UserRepository userRepository;
 
     @GetMapping
-    public List<RecipeDto> getAllRecipes() {
-        return recipeService.getAllRecipes();
+    public ResponseEntity<List<RecipeDto>> getAllRecipes(HttpServletRequest request) {
+        User user = getUserFromRequest(request);
+        if (user.getCouple() == null) {
+            return ResponseEntity.ok(Collections.emptyList());
+        }
+
+        List<RecipeDto> recipes = recipeService.getAllRecipes(user.getCouple().getId());
+        return ResponseEntity.ok(recipes);
     }
 
     @GetMapping("/{id}")
@@ -28,8 +40,16 @@ public class RecipeController {
     }
 
     @PostMapping
-    public RecipeDto createRecipe(@RequestBody @Valid CreateRecipeRequest request) {
-        return recipeService.createRecipe(request);
+    public ResponseEntity<RecipeDto> createRecipe(
+            @Valid @RequestBody CreateRecipeRequest createRequest,
+            HttpServletRequest request) {
+        User user = getUserFromRequest(request);
+        if (user.getCouple() == null) {
+            return ResponseEntity.badRequest().build();
+        }
+
+        RecipeDto recipe = recipeService.createRecipe(createRequest, user.getCouple().getId());
+        return ResponseEntity.status(HttpStatus.CREATED).body(recipe);
     }
 
     @PutMapping("/{id}")
@@ -41,5 +61,11 @@ public class RecipeController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteRecipe(@PathVariable Long id) {
         recipeService.deleteRecipe(id);
+    }
+
+    private User getUserFromRequest(HttpServletRequest request) {
+        Long userId = (Long) request.getAttribute("userId");
+        return userRepository.findById(userId)
+            .orElseThrow(() -> new RuntimeException("User not found"));
     }
 }
