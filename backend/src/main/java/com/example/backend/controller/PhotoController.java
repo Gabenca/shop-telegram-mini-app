@@ -2,6 +2,7 @@ package com.example.backend.controller;
 
 import com.example.backend.dto.PhotoUploadResponse;
 import com.example.backend.telegram.TelegramBotService;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -16,8 +17,15 @@ public class PhotoController {
     private final TelegramBotService telegramBotService;
 
     @PostMapping(value = "/upload-photo", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<PhotoUploadResponse> uploadPhoto(@RequestParam("file") MultipartFile file) {
-        PhotoUploadResponse response = telegramBotService.uploadPhoto(file);
+    public ResponseEntity<PhotoUploadResponse> uploadPhoto(
+            @RequestParam("file") MultipartFile file,
+            HttpServletRequest request) {
+        Long telegramId = (Long) request.getAttribute("telegramId");
+        if (telegramId == null) {
+            return ResponseEntity.badRequest().build();
+        }
+        
+        PhotoUploadResponse response = telegramBotService.uploadPhoto(file, telegramId);
         return ResponseEntity.ok(response);
     }
 

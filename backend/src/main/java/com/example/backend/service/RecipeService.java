@@ -6,6 +6,8 @@ import com.example.backend.domain.Recipe;
 import com.example.backend.domain.Unit;
 import com.example.backend.dto.CreateRecipeRequest;
 import com.example.backend.dto.RecipeDto;
+import com.example.backend.exception.AccessDeniedException;
+import com.example.backend.exception.ResourceNotFoundException;
 import com.example.backend.repository.CoupleRepository;
 import com.example.backend.repository.RecipeRepository;
 import lombok.RequiredArgsConstructor;
@@ -25,7 +27,7 @@ public class RecipeService {
     @Transactional
     public RecipeDto createRecipe(CreateRecipeRequest request, Long coupleId) {
         Couple couple = coupleRepository.findById(coupleId)
-            .orElseThrow(() -> new RuntimeException("Couple not found"));
+            .orElseThrow(() -> new ResourceNotFoundException("Couple not found"));
 
         Recipe recipe = Recipe.builder()
                 .name(request.getName())
@@ -59,16 +61,25 @@ public class RecipeService {
     }
 
     @Transactional(readOnly = true)
-    public RecipeDto getRecipeById(Long id) {
+    public RecipeDto getRecipeById(Long id, Long coupleId) {
         Recipe recipe = recipeRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Recipe not found: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Recipe not found: " + id));
+        
+        if (!recipe.getCouple().getId().equals(coupleId)) {
+            throw new AccessDeniedException("Access denied");
+        }
+        
         return mapToDto(recipe);
     }
 
     @Transactional
-    public RecipeDto updateRecipe(Long id, CreateRecipeRequest request) {
+    public RecipeDto updateRecipe(Long id, CreateRecipeRequest request, Long coupleId) {
         Recipe recipe = recipeRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Recipe not found: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Recipe not found: " + id));
+
+        if (!recipe.getCouple().getId().equals(coupleId)) {
+            throw new AccessDeniedException("Access denied");
+        }
 
         recipe.setName(request.getName());
         recipe.setDescription(request.getDescription());
@@ -93,7 +104,14 @@ public class RecipeService {
     }
 
     @Transactional
-    public void deleteRecipe(Long id) {
+    public void deleteRecipe(Long id, Long coupleId) {
+        Recipe recipe = recipeRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Recipe not found: " + id));
+        
+        if (!recipe.getCouple().getId().equals(coupleId)) {
+            throw new AccessDeniedException("Access denied");
+        }
+        
         recipeRepository.deleteById(id);
     }
 

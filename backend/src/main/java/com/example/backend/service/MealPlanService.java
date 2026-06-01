@@ -5,6 +5,8 @@ import com.example.backend.domain.MealPlanEntry;
 import com.example.backend.domain.Recipe;
 import com.example.backend.dto.CreateMealPlanEntryRequest;
 import com.example.backend.dto.MealPlanEntryDto;
+import com.example.backend.exception.AccessDeniedException;
+import com.example.backend.exception.ResourceNotFoundException;
 import com.example.backend.repository.CoupleRepository;
 import com.example.backend.repository.MealPlanEntryRepository;
 import com.example.backend.repository.RecipeRepository;
@@ -35,10 +37,10 @@ public class MealPlanService {
     @Transactional
     public MealPlanEntryDto addMealPlanEntry(CreateMealPlanEntryRequest request, Long coupleId) {
         Recipe recipe = recipeRepository.findById(request.getRecipeId())
-                .orElseThrow(() -> new RuntimeException("Recipe not found: " + request.getRecipeId()));
+                .orElseThrow(() -> new ResourceNotFoundException("Recipe not found: " + request.getRecipeId()));
 
         Couple couple = coupleRepository.findById(coupleId)
-            .orElseThrow(() -> new RuntimeException("Couple not found"));
+            .orElseThrow(() -> new ResourceNotFoundException("Couple not found"));
 
         MealPlanEntry entry = MealPlanEntry.builder()
                 .date(request.getDate())
@@ -52,7 +54,14 @@ public class MealPlanService {
     }
 
     @Transactional
-    public void deleteMealPlanEntry(Long id) {
+    public void deleteMealPlanEntry(Long id, Long coupleId) {
+        MealPlanEntry entry = mealPlanEntryRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Meal plan entry not found: " + id));
+        
+        if (!entry.getCouple().getId().equals(coupleId)) {
+            throw new AccessDeniedException("Access denied");
+        }
+        
         mealPlanEntryRepository.deleteById(id);
     }
 

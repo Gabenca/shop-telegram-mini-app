@@ -3,6 +3,7 @@ package com.example.backend.controller;
 import com.example.backend.domain.User;
 import com.example.backend.dto.CreateMealPlanEntryRequest;
 import com.example.backend.dto.MealPlanEntryDto;
+import com.example.backend.exception.ResourceNotFoundException;
 import com.example.backend.repository.UserRepository;
 import com.example.backend.service.MealPlanService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -52,13 +53,17 @@ public class MealPlanController {
 
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteMealPlanEntry(@PathVariable Long id) {
-        mealPlanService.deleteMealPlanEntry(id);
+    public void deleteMealPlanEntry(@PathVariable Long id, HttpServletRequest request) {
+        User user = getUserFromRequest(request);
+        if (user.getCouple() == null) {
+            throw new IllegalStateException("User not in a couple");
+        }
+        mealPlanService.deleteMealPlanEntry(id, user.getCouple().getId());
     }
 
     private User getUserFromRequest(HttpServletRequest request) {
         Long userId = (Long) request.getAttribute("userId");
         return userRepository.findById(userId)
-            .orElseThrow(() -> new RuntimeException("User not found"));
+            .orElseThrow(() -> new ResourceNotFoundException("User not found"));
     }
 }

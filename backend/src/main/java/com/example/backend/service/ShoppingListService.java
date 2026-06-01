@@ -5,6 +5,8 @@ import com.example.backend.domain.MealPlanEntry;
 import com.example.backend.domain.ShoppingListItem;
 import com.example.backend.dto.CreateManualItemRequest;
 import com.example.backend.dto.ShoppingListItemDto;
+import com.example.backend.exception.AccessDeniedException;
+import com.example.backend.exception.ResourceNotFoundException;
 import com.example.backend.repository.CoupleRepository;
 import com.example.backend.repository.MealPlanEntryRepository;
 import com.example.backend.repository.ShoppingListItemRepository;
@@ -63,7 +65,7 @@ public class ShoppingListService {
         shoppingListItemRepository.deleteAll(toDelete);
 
         Couple couple = coupleRepository.findById(coupleId)
-            .orElseThrow(() -> new RuntimeException("Couple not found"));
+            .orElseThrow(() -> new ResourceNotFoundException("Couple not found"));
 
         List<ShoppingListItem> savedItems = new java.util.ArrayList<>();
         for (ShoppingListItem item : aggregated.values()) {
@@ -84,7 +86,7 @@ public class ShoppingListService {
     @Transactional
     public ShoppingListItemDto addManualItem(CreateManualItemRequest request, LocalDate weekStart, Long coupleId) {
         Couple couple = coupleRepository.findById(coupleId)
-            .orElseThrow(() -> new RuntimeException("Couple not found"));
+            .orElseThrow(() -> new ResourceNotFoundException("Couple not found"));
 
         ShoppingListItem item = ShoppingListItem.builder()
                 .weekStartDate(weekStart)
@@ -101,16 +103,28 @@ public class ShoppingListService {
     }
 
     @Transactional
-    public ShoppingListItemDto updateItem(Long id, ShoppingListItemDto dto) {
+    public ShoppingListItemDto updateItem(Long id, ShoppingListItemDto dto, Long coupleId) {
         ShoppingListItem item = shoppingListItemRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Item not found: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Item not found: " + id));
+        
+        if (!item.getCouple().getId().equals(coupleId)) {
+            throw new AccessDeniedException("Access denied");
+        }
+        
         item.setChecked(dto.isChecked());
         ShoppingListItem saved = shoppingListItemRepository.save(item);
         return mapToDto(saved);
     }
 
     @Transactional
-    public void deleteItem(Long id) {
+    public void deleteItem(Long id, Long coupleId) {
+        ShoppingListItem item = shoppingListItemRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Item not found: " + id));
+        
+        if (!item.getCouple().getId().equals(coupleId)) {
+            throw new AccessDeniedException("Access denied");
+        }
+        
         shoppingListItemRepository.deleteById(id);
     }
 

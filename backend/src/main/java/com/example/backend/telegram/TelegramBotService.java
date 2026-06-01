@@ -23,7 +23,7 @@ public class TelegramBotService {
 
     private final WebClient.Builder webClientBuilder;
 
-    public PhotoUploadResponse uploadPhoto(MultipartFile file) {
+    public PhotoUploadResponse uploadPhoto(MultipartFile file, Long chatId) {
         String url = "https://api.telegram.org/bot" + botToken + "/sendPhoto";
 
         WebClient webClient = webClientBuilder.build();
@@ -36,7 +36,7 @@ public class TelegramBotService {
         }
 
         MultipartBodyBuilder builder = new MultipartBodyBuilder();
-        builder.part("chat_id", botToken);
+        builder.part("chat_id", chatId.toString());
         builder.part("photo", new ByteArrayResource(fileBytes) {
             @Override
             public String getFilename() {

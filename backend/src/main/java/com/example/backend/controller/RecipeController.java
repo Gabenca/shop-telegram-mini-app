@@ -3,6 +3,7 @@ package com.example.backend.controller;
 import com.example.backend.domain.User;
 import com.example.backend.dto.CreateRecipeRequest;
 import com.example.backend.dto.RecipeDto;
+import com.example.backend.exception.ResourceNotFoundException;
 import com.example.backend.repository.UserRepository;
 import com.example.backend.service.RecipeService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -35,8 +36,12 @@ public class RecipeController {
     }
 
     @GetMapping("/{id}")
-    public RecipeDto getRecipeById(@PathVariable Long id) {
-        return recipeService.getRecipeById(id);
+    public RecipeDto getRecipeById(@PathVariable Long id, HttpServletRequest request) {
+        User user = getUserFromRequest(request);
+        if (user.getCouple() == null) {
+            throw new IllegalStateException("User not in a couple");
+        }
+        return recipeService.getRecipeById(id, user.getCouple().getId());
     }
 
     @PostMapping
@@ -53,19 +58,27 @@ public class RecipeController {
     }
 
     @PutMapping("/{id}")
-    public RecipeDto updateRecipe(@PathVariable Long id, @RequestBody @Valid CreateRecipeRequest request) {
-        return recipeService.updateRecipe(id, request);
+    public RecipeDto updateRecipe(@PathVariable Long id, @RequestBody @Valid CreateRecipeRequest request, HttpServletRequest httpRequest) {
+        User user = getUserFromRequest(httpRequest);
+        if (user.getCouple() == null) {
+            throw new IllegalStateException("User not in a couple");
+        }
+        return recipeService.updateRecipe(id, request, user.getCouple().getId());
     }
 
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteRecipe(@PathVariable Long id) {
-        recipeService.deleteRecipe(id);
+    public void deleteRecipe(@PathVariable Long id, HttpServletRequest request) {
+        User user = getUserFromRequest(request);
+        if (user.getCouple() == null) {
+            throw new IllegalStateException("User not in a couple");
+        }
+        recipeService.deleteRecipe(id, user.getCouple().getId());
     }
 
     private User getUserFromRequest(HttpServletRequest request) {
         Long userId = (Long) request.getAttribute("userId");
         return userRepository.findById(userId)
-            .orElseThrow(() -> new RuntimeException("User not found"));
+            .orElseThrow(() -> new ResourceNotFoundException("User not found"));
     }
 }
