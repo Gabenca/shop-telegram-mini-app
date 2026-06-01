@@ -3,6 +3,7 @@ package com.example.backend.service;
 import com.example.backend.domain.*;
 import com.example.backend.dto.CreateManualItemRequest;
 import com.example.backend.dto.ShoppingListItemDto;
+import com.example.backend.repository.CoupleRepository;
 import com.example.backend.repository.MealPlanEntryRepository;
 import com.example.backend.repository.ShoppingListItemRepository;
 import org.junit.jupiter.api.Test;
@@ -14,6 +15,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -28,6 +30,9 @@ class ShoppingListServiceTest {
     @Mock
     private MealPlanEntryRepository mealPlanEntryRepository;
 
+    @Mock
+    private CoupleRepository coupleRepository;
+
     @InjectMocks
     private ShoppingListService shoppingListService;
 
@@ -40,14 +45,16 @@ class ShoppingListServiceTest {
 
         MealPlanEntry entry = MealPlanEntry.builder().date(weekStart).recipe(recipe).build();
 
-        when(mealPlanEntryRepository.findByDateBetween(weekStart, weekStart.plusDays(6))).thenReturn(List.of(entry));
-        when(shoppingListItemRepository.findByWeekStartDate(weekStart)).thenReturn(List.of());
-        when(shoppingListItemRepository.saveAll(any())).thenAnswer(inv -> {
-            java.util.Collection<ShoppingListItem> items = inv.getArgument(0);
-            return new java.util.ArrayList<>(items);
+        when(mealPlanEntryRepository.findByDateBetweenAndCoupleId(weekStart, weekStart.plusDays(6), 1L)).thenReturn(List.of(entry));
+        when(shoppingListItemRepository.findByWeekStartDateAndCoupleId(weekStart, 1L)).thenReturn(List.of());
+        when(coupleRepository.findById(1L)).thenReturn(Optional.of(new Couple()));
+        when(shoppingListItemRepository.save(any())).thenAnswer(inv -> {
+            ShoppingListItem i = inv.getArgument(0);
+            i.setId(1L);
+            return i;
         });
 
-        List<ShoppingListItemDto> result = shoppingListService.regenerateShoppingList(weekStart);
+        List<ShoppingListItemDto> result = shoppingListService.regenerateShoppingList(weekStart, 1L);
 
         assertThat(result).hasSize(1);
         assertThat(result.get(0).getTotalQuantity()).isEqualTo(800.0);
@@ -56,18 +63,18 @@ class ShoppingListServiceTest {
     @Test
     void addManualItem_shouldReturnDto() {
         CreateManualItemRequest request = new CreateManualItemRequest();
-        request.setWeekStartDate(LocalDate.now());
         request.setIngredientName("Milk");
         request.setTotalQuantity(1.0);
         request.setUnit(Unit.MILLILITER);
 
+        when(coupleRepository.findById(1L)).thenReturn(Optional.of(new Couple()));
         when(shoppingListItemRepository.save(any())).thenAnswer(inv -> {
             ShoppingListItem i = inv.getArgument(0);
             i.setId(1L);
             return i;
         });
 
-        ShoppingListItemDto result = shoppingListService.addManualItem(request);
+        ShoppingListItemDto result = shoppingListService.addManualItem(request, LocalDate.now(), 1L);
 
         assertThat(result.getIngredientName()).isEqualTo("Milk");
         assertThat(result.isManual()).isTrue();

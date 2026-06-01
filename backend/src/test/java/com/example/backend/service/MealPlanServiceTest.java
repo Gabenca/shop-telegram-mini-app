@@ -1,10 +1,12 @@
 package com.example.backend.service;
 
+import com.example.backend.domain.Couple;
 import com.example.backend.domain.MealPlanEntry;
 import com.example.backend.domain.MealType;
 import com.example.backend.domain.Recipe;
 import com.example.backend.dto.CreateMealPlanEntryRequest;
 import com.example.backend.dto.MealPlanEntryDto;
+import com.example.backend.repository.CoupleRepository;
 import com.example.backend.repository.MealPlanEntryRepository;
 import com.example.backend.repository.RecipeRepository;
 import org.junit.jupiter.api.Test;
@@ -30,6 +32,9 @@ class MealPlanServiceTest {
     @Mock
     private RecipeRepository recipeRepository;
 
+    @Mock
+    private CoupleRepository coupleRepository;
+
     @InjectMocks
     private MealPlanService mealPlanService;
 
@@ -37,6 +42,7 @@ class MealPlanServiceTest {
     void addMealPlanEntry_shouldReturnDto() {
         Recipe recipe = Recipe.builder().id(1L).name("Pasta").build();
         when(recipeRepository.findById(1L)).thenReturn(Optional.of(recipe));
+        when(coupleRepository.findById(1L)).thenReturn(Optional.of(new Couple()));
         when(mealPlanEntryRepository.save(any())).thenAnswer(inv -> {
             MealPlanEntry e = inv.getArgument(0);
             e.setId(1L);
@@ -48,7 +54,7 @@ class MealPlanServiceTest {
         request.setRecipeId(1L);
         request.setMealType(MealType.LUNCH);
 
-        MealPlanEntryDto result = mealPlanService.addMealPlanEntry(request);
+        MealPlanEntryDto result = mealPlanService.addMealPlanEntry(request, 1L);
 
         assertThat(result.getRecipeName()).isEqualTo("Pasta");
         assertThat(result.getMealType()).isEqualTo(MealType.LUNCH);
@@ -59,9 +65,9 @@ class MealPlanServiceTest {
         LocalDate start = LocalDate.now();
         Recipe recipe = Recipe.builder().id(1L).name("Pasta").build();
         MealPlanEntry entry = MealPlanEntry.builder().id(1L).date(start).recipe(recipe).mealType(MealType.DINNER).build();
-        when(mealPlanEntryRepository.findByDateBetween(start, start.plusDays(6))).thenReturn(List.of(entry));
+        when(mealPlanEntryRepository.findByDateBetweenAndCoupleId(start, start.plusDays(6), 1L)).thenReturn(List.of(entry));
 
-        List<MealPlanEntryDto> result = mealPlanService.getMealPlanForWeek(start);
+        List<MealPlanEntryDto> result = mealPlanService.getMealPlanForWeek(start, 1L);
 
         assertThat(result).hasSize(1);
     }
