@@ -1,10 +1,12 @@
 package com.example.backend.service;
 
+import com.example.backend.domain.Couple;
 import com.example.backend.domain.Ingredient;
 import com.example.backend.domain.Recipe;
 import com.example.backend.domain.Unit;
 import com.example.backend.dto.CreateRecipeRequest;
 import com.example.backend.dto.RecipeDto;
+import com.example.backend.repository.CoupleRepository;
 import com.example.backend.repository.RecipeRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -18,14 +20,19 @@ import java.util.stream.Collectors;
 public class RecipeService {
 
     private final RecipeRepository recipeRepository;
+    private final CoupleRepository coupleRepository;
 
     @Transactional
-    public RecipeDto createRecipe(CreateRecipeRequest request) {
+    public RecipeDto createRecipe(CreateRecipeRequest request, Long coupleId) {
+        Couple couple = coupleRepository.findById(coupleId)
+            .orElseThrow(() -> new RuntimeException("Couple not found"));
+
         Recipe recipe = Recipe.builder()
                 .name(request.getName())
                 .description(request.getDescription())
                 .photoUrl(request.getPhotoUrl())
                 .instructions(request.getInstructions())
+                .couple(couple)
                 .build();
 
         if (request.getIngredients() != null) {
@@ -45,8 +52,8 @@ public class RecipeService {
     }
 
     @Transactional(readOnly = true)
-    public List<RecipeDto> getAllRecipes() {
-        return recipeRepository.findAll().stream()
+    public List<RecipeDto> getAllRecipes(Long coupleId) {
+        return recipeRepository.findByCoupleId(coupleId).stream()
                 .map(this::mapToDto)
                 .collect(Collectors.toList());
     }

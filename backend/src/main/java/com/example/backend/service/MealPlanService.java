@@ -1,9 +1,11 @@
 package com.example.backend.service;
 
+import com.example.backend.domain.Couple;
 import com.example.backend.domain.MealPlanEntry;
 import com.example.backend.domain.Recipe;
 import com.example.backend.dto.CreateMealPlanEntryRequest;
 import com.example.backend.dto.MealPlanEntryDto;
+import com.example.backend.repository.CoupleRepository;
 import com.example.backend.repository.MealPlanEntryRepository;
 import com.example.backend.repository.RecipeRepository;
 import lombok.RequiredArgsConstructor;
@@ -20,24 +22,29 @@ public class MealPlanService {
 
     private final MealPlanEntryRepository mealPlanEntryRepository;
     private final RecipeRepository recipeRepository;
+    private final CoupleRepository coupleRepository;
 
     @Transactional(readOnly = true)
-    public List<MealPlanEntryDto> getMealPlanForWeek(LocalDate weekStart) {
+    public List<MealPlanEntryDto> getMealPlanForWeek(LocalDate weekStart, Long coupleId) {
         LocalDate weekEnd = weekStart.plusDays(6);
-        return mealPlanEntryRepository.findByDateBetween(weekStart, weekEnd).stream()
+        return mealPlanEntryRepository.findByDateBetweenAndCoupleId(weekStart, weekEnd, coupleId).stream()
                 .map(this::mapToDto)
                 .collect(Collectors.toList());
     }
 
     @Transactional
-    public MealPlanEntryDto addMealPlanEntry(CreateMealPlanEntryRequest request) {
+    public MealPlanEntryDto addMealPlanEntry(CreateMealPlanEntryRequest request, Long coupleId) {
         Recipe recipe = recipeRepository.findById(request.getRecipeId())
                 .orElseThrow(() -> new RuntimeException("Recipe not found: " + request.getRecipeId()));
+
+        Couple couple = coupleRepository.findById(coupleId)
+            .orElseThrow(() -> new RuntimeException("Couple not found"));
 
         MealPlanEntry entry = MealPlanEntry.builder()
                 .date(request.getDate())
                 .recipe(recipe)
                 .mealType(request.getMealType())
+                .couple(couple)
                 .build();
 
         MealPlanEntry saved = mealPlanEntryRepository.save(entry);

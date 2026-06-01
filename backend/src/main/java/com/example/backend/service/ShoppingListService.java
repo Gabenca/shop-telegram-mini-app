@@ -1,11 +1,11 @@
 package com.example.backend.service;
 
+import com.example.backend.domain.Couple;
 import com.example.backend.domain.MealPlanEntry;
-import com.example.backend.domain.Recipe;
 import com.example.backend.domain.ShoppingListItem;
-import com.example.backend.domain.Unit;
 import com.example.backend.dto.CreateManualItemRequest;
 import com.example.backend.dto.ShoppingListItemDto;
+import com.example.backend.repository.CoupleRepository;
 import com.example.backend.repository.MealPlanEntryRepository;
 import com.example.backend.repository.ShoppingListItemRepository;
 import lombok.RequiredArgsConstructor;
@@ -13,9 +13,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
+import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
@@ -24,18 +23,19 @@ public class ShoppingListService {
 
     private final ShoppingListItemRepository shoppingListItemRepository;
     private final MealPlanEntryRepository mealPlanEntryRepository;
+    private final CoupleRepository coupleRepository;
 
     @Transactional(readOnly = true)
-    public List<ShoppingListItemDto> getShoppingListForWeek(LocalDate weekStart) {
-        return shoppingListItemRepository.findByWeekStartDate(weekStart).stream()
+    public List<ShoppingListItemDto> getShoppingListForWeek(LocalDate weekStart, Long coupleId) {
+        return shoppingListItemRepository.findByWeekStartDateAndCoupleId(weekStart, coupleId).stream()
                 .map(this::mapToDto)
                 .collect(Collectors.toList());
     }
 
     @Transactional
-    public List<ShoppingListItemDto> regenerateShoppingList(LocalDate weekStart) {
+    public List<ShoppingListItemDto> regenerateShoppingList(LocalDate weekStart, Long coupleId) {
         LocalDate weekEnd = weekStart.plusDays(6);
-        List<MealPlanEntry> entries = mealPlanEntryRepository.findByDateBetween(weekStart, weekEnd);
+        List<MealPlanEntry> entries = mealPlanEntryRepository.findByDateBetweenAndCoupleId(weekStart, weekEnd, coupleId);
 
         Map<String, ShoppingListItem> aggregated = entries.stream()
                 .flatMap(e -> e.getRecipe().getIngredients().stream())
@@ -56,33 +56,44 @@ public class ShoppingListService {
                         )
                 ));
 
-        List<ShoppingListItem> existing = shoppingListItemRepository.findByWeekStartDate(weekStart);
+        List<ShoppingListItem> existing = shoppingListItemRepository.findByWeekStartDateAndCoupleId(weekStart, coupleId);
         List<ShoppingListItem> toDelete = existing.stream()
                 .filter(i -> !i.isManual())
                 .collect(Collectors.toList());
         shoppingListItemRepository.deleteAll(toDelete);
 
-        List<ShoppingListItem> saved = shoppingListItemRepository.saveAll(aggregated.values());
+        Couple couple = coupleRepository.findById(coupleId)
+            .orElseThrow(() -> new RuntimeException("Couple not found"));
+
+        List<ShoppingListItem> savedItems = new java.util.ArrayList<>();
+        for (ShoppingListItem item : aggregated.values()) {
+            item.setCouple(couple);
+            savedItems.add(shoppingListItemRepository.save(item));
+        }
 
         List<ShoppingListItem> manualItems = existing.stream()
                 .filter(ShoppingListItem::isManual)
                 .collect(Collectors.toList());
 
-        manualItems.addAll(saved);
+        manualItems.addAll(savedItems);
         return manualItems.stream()
                 .map(this::mapToDto)
                 .collect(Collectors.toList());
     }
 
     @Transactional
-    public ShoppingListItemDto addManualItem(CreateManualItemRequest request) {
+    public ShoppingListItemDto addManualItem(CreateManualItemRequest request, LocalDate weekStart, Long coupleId) {
+        Couple couple = coupleRepository.findById(coupleId)
+            .orElseThrow(() -> new RuntimeException("Couple not found"));
+
         ShoppingListItem item = ShoppingListItem.builder()
-                .weekStartDate(request.getWeekStartDate())
+                .weekStartDate(weekStart)
                 .ingredientName(request.getIngredientName())
                 .totalQuantity(request.getTotalQuantity())
                 .unit(request.getUnit())
                 .checked(false)
                 .manual(true)
+                .couple(couple)
                 .build();
 
         ShoppingListItem saved = shoppingListItemRepository.save(item);
