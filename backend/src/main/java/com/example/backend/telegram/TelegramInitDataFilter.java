@@ -1,11 +1,12 @@
 package com.example.backend.telegram;
 
+import com.example.backend.domain.User;
+import com.example.backend.repository.UserRepository;
 import jakarta.servlet.*;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.env.Environment;
+import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.Mac;
@@ -13,113 +14,167 @@ import javax.crypto.spec.SecretKeySpec;
 import java.io.IOException;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest;
-import java.util.*;
-import java.util.stream.Collectors;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
+import java.util.Base64;
+import java.util.HashMap;
+import java.util.Map;
 
-@Slf4j
 @Component
+@Order(1)
 public class TelegramInitDataFilter implements Filter {
 
     @Value("${telegram.bot-token:}")
     private String botToken;
 
-    private final Environment environment;
+    @Value("${spring.profiles.active:}")
+    private String activeProfile;
 
-    public TelegramInitDataFilter(Environment environment) {
-        this.environment = environment;
-    }
+    @Autowired
+    private UserRepository userRepository;
 
     @Override
-    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
+    public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain chain)
             throws IOException, ServletException {
 
-        HttpServletRequest httpRequest = (HttpServletRequest) request;
-        HttpServletResponse httpResponse = (HttpServletResponse) response;
+        HttpServletRequest request = (HttpServletRequest) servletRequest;
 
-        // Skip validation in dev profile for local testing
-        if (isDevProfileActive()) {
-            chain.doFilter(request, response);
+        if ("dev".equals(activeProfile)) {
+            Long devTelegramId = 123456789L;
+            String devUsername = "dev_user";
+
+            User user = userRepository.findByTelegramId(devTelegramId)
+                .orElseGet(() -> {
+                    User newUser = User.builder()
+                        .telegramId(devTelegramId)
+                        .username(devUsername)
+                        .build();
+                    return userRepository.save(newUser);
+                });
+
+            request.setAttribute("telegramId", devTelegramId);
+            request.setAttribute("username", devUsername);
+            request.setAttribute("userId", user.getId());
+
+            chain.doFilter(servletRequest, servletResponse);
             return;
         }
 
-        String initData = httpRequest.getHeader("X-Telegram-Init-Data");
-        if (initData == null || initData.isBlank()) {
-            initData = httpRequest.getParameter("initData");
+        String initData = request.getHeader("X-Telegram-Init-Data");
+        if (initData == null) {
+            initData = request.getParameter("initData");
         }
 
-        if (initData == null || initData.isBlank()) {
-            httpResponse.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            httpResponse.getWriter().write("Missing Telegram init data");
+        if (initData == null || initData.isEmpty()) {
+            chain.doFilter(servletRequest, servletResponse);
             return;
         }
 
-        if (!validateInitData(initData)) {
-            httpResponse.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            httpResponse.getWriter().write("Invalid Telegram init data");
-            return;
-        }
-
-        chain.doFilter(request, response);
-    }
-
-    private boolean isDevProfileActive() {
-        return Arrays.asList(environment.getActiveProfiles()).contains("dev");
-    }
-
-    private boolean validateInitData(String initData) {
         try {
-            Map<String, String> params = parseInitData(initData);
-            String receivedHash = params.remove("hash");
-            if (receivedHash == null || botToken == null || botToken.isBlank()) {
-                return false;
+            if (!validateInitData(initData)) {
+                chain.doFilter(servletRequest, servletResponse);
+                return;
             }
 
-            List<String> dataCheckStrings = params.entrySet().stream()
-                    .sorted(Map.Entry.comparingByKey())
-                    .map(e -> e.getKey() + "=" + e.getValue())
-                    .collect(Collectors.toList());
+            Map<String, String> params = parseInitData(initData);
+            String userJson = params.get("user");
 
-            String dataCheckString = String.join("\n", dataCheckStrings);
+            if (userJson != null) {
+                Map<String, Object> userData = parseJson(userJson);
+                Long telegramId = Long.valueOf(userData.get("id").toString());
+                String username = userData.getOrDefault("username", "").toString();
 
-            String secretKey = hmacSha256("WebAppData", botToken);
-            String computedHash = hmacSha256Hex(secretKey, dataCheckString);
+                User user = userRepository.findByTelegramId(telegramId)
+                    .orElseGet(() -> {
+                        User newUser = User.builder()
+                            .telegramId(telegramId)
+                            .username(username)
+                            .build();
+                        return userRepository.save(newUser);
+                    });
 
-            return computedHash.equalsIgnoreCase(receivedHash);
+                request.setAttribute("telegramId", telegramId);
+                request.setAttribute("username", username);
+                request.setAttribute("userId", user.getId());
+            }
         } catch (Exception e) {
-            log.error("Telegram init data validation error", e);
+            // Log error and continue
+        }
+
+        chain.doFilter(servletRequest, servletResponse);
+    }
+
+    private boolean validateInitData(String initData) throws NoSuchAlgorithmException, InvalidKeyException {
+        Map<String, String> params = parseInitData(initData);
+        String hash = params.get("hash");
+
+        if (hash == null) {
             return false;
         }
+
+        StringBuilder dataCheckString = new StringBuilder();
+        params.entrySet().stream()
+            .filter(e -> !e.getKey().equals("hash"))
+            .sorted(Map.Entry.comparingByKey())
+            .forEach(e -> {
+                if (dataCheckString.length() > 0) {
+                    dataCheckString.append("\n");
+                }
+                dataCheckString.append(e.getKey()).append("=").append(e.getValue());
+            });
+
+        Mac hmacSha256 = Mac.getInstance("HmacSHA256");
+        SecretKeySpec secretKey = new SecretKeySpec("WebAppData".getBytes(StandardCharsets.UTF_8), "HmacSHA256");
+        hmacSha256.init(secretKey);
+        byte[] secretKeyBytes = hmacSha256.doFinal(botToken.getBytes(StandardCharsets.UTF_8));
+
+        SecretKeySpec finalKey = new SecretKeySpec(secretKeyBytes, "HmacSHA256");
+        hmacSha256.init(finalKey);
+        byte[] computedHash = hmacSha256.doFinal(dataCheckString.toString().getBytes(StandardCharsets.UTF_8));
+
+        String computedHashHex = bytesToHex(computedHash);
+        return computedHashHex.equals(hash);
     }
 
     private Map<String, String> parseInitData(String initData) {
-        Map<String, String> result = new HashMap<>();
+        Map<String, String> params = new HashMap<>();
         String[] pairs = initData.split("&");
         for (String pair : pairs) {
-            int idx = pair.indexOf('=');
+            int idx = pair.indexOf("=");
             if (idx > 0) {
-                String key = URLDecoder.decode(pair.substring(0, idx), StandardCharsets.UTF_8);
+                String key = pair.substring(0, idx);
                 String value = URLDecoder.decode(pair.substring(idx + 1), StandardCharsets.UTF_8);
-                result.put(key, value);
+                params.put(key, value);
+            }
+        }
+        return params;
+    }
+
+    private Map<String, Object> parseJson(String json) {
+        Map<String, Object> result = new HashMap<>();
+        json = json.trim();
+        if (json.startsWith("{") && json.endsWith("}")) {
+            json = json.substring(1, json.length() - 1);
+            String[] pairs = json.split(",");
+            for (String pair : pairs) {
+                int idx = pair.indexOf(":");
+                if (idx > 0) {
+                    String key = pair.substring(0, idx).trim();
+                    key = key.replaceAll("^\"|\"$", "");
+                    String value = pair.substring(idx + 1).trim();
+                    value = value.replaceAll("^\"|\"$", "");
+                    result.put(key, value);
+                }
             }
         }
         return result;
     }
 
-    private String hmacSha256(String key, String data) throws Exception {
-        Mac mac = Mac.getInstance("HmacSHA256");
-        mac.init(new SecretKeySpec(key.getBytes(StandardCharsets.UTF_8), "HmacSHA256"));
-        return new String(mac.doFinal(data.getBytes(StandardCharsets.UTF_8)), StandardCharsets.UTF_8);
-    }
-
-    private String hmacSha256Hex(String key, String data) throws Exception {
-        Mac mac = Mac.getInstance("HmacSHA256");
-        mac.init(new SecretKeySpec(key.getBytes(StandardCharsets.UTF_8), "HmacSHA256"));
-        byte[] hash = mac.doFinal(data.getBytes(StandardCharsets.UTF_8));
-        StringBuilder hexString = new StringBuilder();
-        for (byte b : hash) {
-            hexString.append(String.format("%02x", b));
+    private String bytesToHex(byte[] bytes) {
+        StringBuilder sb = new StringBuilder();
+        for (byte b : bytes) {
+            sb.append(String.format("%02x", b));
         }
-        return hexString.toString();
+        return sb.toString();
     }
 }
