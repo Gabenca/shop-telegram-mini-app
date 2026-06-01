@@ -1,0 +1,60 @@
+<h2>Экран "Список покупок"</h2>
+<p class="subtitle">Как показать агрегированный список продуктов на неделю?</p>
+
+<div class="options">
+  <div class="option" data-choice="a" onclick="toggleSelect(this)">
+    <div class="letter">A</div>
+    <div class="content">
+      <h3>Плоский список с чекбоксами</h3>
+      <p>Простой список продуктов с количеством. Отмечаешь купленное галочкой. Ручные товары добавляются кнопкой внизу.</p>
+      <div style="margin-top:12px; padding:8px; background:#1a1a2e; border-radius:8px; max-width:280px; font-size:12px;">
+        <div style="display:flex; justify-content:space-between; margin-bottom:8px;">
+          <span style="font-weight:bold;">Список покупок</span>
+          <span style="color:#888; font-size:11px;">26 мая — 1 июн</span>
+        </div>
+        <div style="background:#16213e; padding:8px; border-radius:4px; margin-bottom:4px; display:flex; align-items:center; gap:8px;">
+          <span style="font-size:16px;">☐</span>
+          <span>Свёкла — 600г</span>
+        </div>
+        <div style="background:#16213e; padding:8px; border-radius:4px; margin-bottom:4px; display:flex; align-items:center; gap:8px;">
+          <span style="font-size:16px;">☐</span>
+          <span>Курица — 1.2кг</span>
+        </div>
+        <div style="background:#16213e; padding:8px; border-radius:4px; margin-bottom:4px; display:flex; align-items:center; gap:8px; opacity:0.5; text-decoration:line-through;">
+          <span style="font-size:16px;">☑</span>
+          <span>Молоко — 2л</span>
+        </div>
+        <div style="background:#16213e; padding:8px; border-radius:4px; margin-bottom:4px; display:flex; align-items:center; gap:8px; border-left:3px solid #4fc3f7;">
+          <span style="font-size:16px;">☐</span>
+          <span>Кофе <span style="color:#888; font-size:10px;">(добавлено вручную)</span></span>
+        </div>
+        <div style="background:#4fc3f7; color:#000; text-align:center; padding:8px; border-radius:6px; margin-top:8px; font-weight:bold;">+ Добавить продукт</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="option" data-choice="b" onclick="toggleSelect(this)">
+    <div class="letter">B</div>
+    <div class="content">
+      <h3>Сгруппированный по категориям</h3>
+      <p>Продукты разбиты по категориям: Овощи, Мясо, Молочные и т.д. Легче ориентироваться в магазине. Но требует категоризации продуктов.</p>
+      <div style="margin-top:12px; padding:8px; background:#1a1a2e; border-radius:8px; max-width:280px; font-size:12px;">
+        <div style="font-weight:bold; margin-bottom:8px;">🥬 Овощи</div>
+        <div style="background:#16213e; padding:6px; border-radius:4px; margin-bottom:3px; display:flex; align-items:center; gap:8px;">
+          <span>☐</span><span>Свёкла — 600г</span>
+        </div>
+        <div style="background:#16213e; padding:6px; border-radius:4px; margin-bottom:3px; display:flex; align-items:center; gap:8px;">
+          <span>☐</span><span>Картофель — 500г</span>
+        </div>
+        <div style="font-weight:bold; margin:8px 0 4px;">🥩 Мясо</div>
+        <div style="background:#16213e; padding:6px; border-radius:4px; margin-bottom:3px; display:flex; align-items:center; gap:8px;">
+          <span>☐</span><span>Курица — 1.2кг</span>
+        </div>
+        <div style="font-weight:bold; margin:8px 0 4px;">🥛 Молочные</div>
+        <div style="background:#16213e; padding:6px; border-radius:4px; margin-bottom:3px; display:flex; align-items:center; gap:8px; opacity:0.5; text-decoration:line-through;">
+          <span>☑</span><span>Молоко — 2л</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

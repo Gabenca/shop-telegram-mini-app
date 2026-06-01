@@ -1,0 +1,72 @@
+<h2>Экран "План на неделю"</h2>
+<p class="subtitle">Как организовать планирование блюд на 7 дней?</p>
+
+<div class="options">
+  <div class="option" data-choice="a" onclick="toggleSelect(this)">
+    <div class="letter">A</div>
+    <div class="content">
+      <h3>Вертикальный список дней</h3>
+      <p>Все 7 дней на одном экране, скролл вниз. Каждый день — карточка с завтраком, обедом, ужином. Видна вся неделя сразу.</p>
+      <div style="margin-top:12px; padding:8px; background:#1a1a2e; border-radius:8px; max-width:300px; font-size:11px;">
+        <div style="text-align:center; font-weight:bold; margin-bottom:8px;">Неделя: 26 мая — 1 июн</div>
+        <div style="background:#16213e; padding:8px; border-radius:6px; margin-bottom:6px;">
+          <div style="font-weight:bold;">Пн, 26 мая</div>
+          <div style="color:#aaa;">🌅 Овсянка &nbsp; ☀️ Борщ &nbsp; 🌙 Курица</div>
+        </div>
+        <div style="background:#16213e; padding:8px; border-radius:6px; margin-bottom:6px;">
+          <div style="font-weight:bold;">Вт, 27 мая</div>
+          <div style="color:#aaa;">🌅 Тосты &nbsp; ☀️ Паста &nbsp; 🌙 Рыба</div>
+        </div>
+        <div style="background:#16213e; padding:8px; border-radius:6px; margin-bottom:6px;">
+          <div style="font-weight:bold;">Ср, 28 мая</div>
+          <div style="color:#666; font-style:italic;">Пусто — нажмите чтобы добавить</div>
+        </div>
+        <div style="color:#555; text-align:center;">...</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="option" data-choice="b" onclick="toggleSelect(this)">
+    <div class="letter">B</div>
+    <div class="content">
+      <h3>Один день + свайп</h3>
+      <p>На экране один день крупно. Свайп влево/вправо переключает дни. Кнопки "← Пн" и "Ср →" по бокам. Больше места для деталей.</p>
+      <div style="margin-top:12px; padding:8px; background:#1a1a2e; border-radius:8px; max-width:300px; font-size:11px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+          <span style="color:#4fc3f7;">← Пн</span>
+          <span style="font-weight:bold;">Вт, 27 мая</span>
+          <span style="color:#4fc3f7;">Ср →</span>
+        </div>
+        <div style="background:#16213e; padding:10px; border-radius:6px; margin-bottom:6px;">
+          <div style="color:#888;">🌅 Завтрак</div>
+          <div style="font-weight:bold;">Тосты с авокадо</div>
+        </div>
+        <div style="background:#16213e; padding:10px; border-radius:6px; margin-bottom:6px;">
+          <div style="color:#888;">☀️ Обед</div>
+          <div style="font-weight:bold;">Паста Карбонара</div>
+        </div>
+        <div style="background:#16213e; padding:10px; border-radius:6px;">
+          <div style="color:#888;">🌙 Ужин</div>
+          <div style="font-weight:bold;">Рыба на гриле</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="option" data-choice="c" onclick="toggleSelect(this)">
+    <div class="letter">C</div>
+    <div class="content">
+      <h3>Таблица-сетка</h3>
+      <p>Компактная таблица: дни по вертикали, приёмы пищи по горизонтали. Вся неделя как на ладони, но мелко.</p>
+      <div style="margin-top:12px; padding:8px; background:#1a1a2e; border-radius:8px; max-width:320px; font-size:9px;">
+        <table style="width:100%; border-collapse:collapse; text-align:center;">
+          <tr style="color:#888;"><td></td><td>🌅 Завт</td><td>☀️ Обед</td><td>🌙 Ужин</td></tr>
+          <tr><td style="font-weight:bold; padding:4px;">Пн</td><td style="background:#16213e; padding:4px; border-radius:3px;">Овсянка</td><td style="background:#16213e; padding:4px; border-radius:3px;">Борщ</td><td style="background:#16213e; padding:4px; border-radius:3px;">Курица</td></tr>
+          <tr><td style="font-weight:bold; padding:4px;">Вт</td><td style="background:#16213e; padding:4px; border-radius:3px;">Тосты</td><td style="background:#16213e; padding:4px; border-radius:3px;">Паста</td><td style="background:#16213e; padding:4px; border-radius:3px;">Рыба</td></tr>
+          <tr><td style="font-weight:bold; padding:4px;">Ср</td><td style="background:#111; padding:4px; border-radius:3px; color:#555;">+</td><td style="background:#111; padding:4px; border-radius:3px; color:#555;">+</td><td style="background:#111; padding:4px; border-radius:3px; color:#555;">+</td></tr>
+          <tr><td style="font-weight:bold; padding:4px;">Чт</td><td style="background:#111; padding:4px; border-radius:3px; color:#555;">+</td><td style="background:#111; padding:4px; border-radius:3px; color:#555;">+</td><td style="background:#111; padding:4px; border-radius:3px; color:#555;">+</td></tr>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>

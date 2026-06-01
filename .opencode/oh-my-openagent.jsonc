@@ -1,0 +1,128 @@
+{
+  "$schema": "https://raw.githubusercontent.com/code-yeongyu/oh-my-openagent/dev/assets/oh-my-opencode.schema.json",
+
+  // ============================================================================
+  // AGENTS: Model assignment per agent
+  // ============================================================================
+  "agents": {
+    // Sisyphus - Main orchestrator (qwen3.7-max for orchestration)
+    "sisyphus": {
+      "model": "opencode-go/qwen3.7-max",
+      "reasoningEffort": "max",
+      "ultrawork": {
+        "model": "opencode-go/qwen3.7-max"
+      }
+    },
+
+    // Hephaestus - Deep autonomous worker (deepseek-v4 for code writing)
+    "hephaestus": {
+      "model": "opencode-go/deepseek-v4-pro",
+      "reasoningEffort": "high"
+    },
+
+    // Prometheus - Strategic planner (orchestration-level model)
+    "prometheus": {
+      "model": "opencode-go/qwen3.7-max",
+      "reasoningEffort": "high"
+    },
+
+    // Oracle - Architecture/debugging consultant (orchestration-level)
+    "oracle": {
+      "model": "opencode-go/qwen3.7-max",
+      "reasoningEffort": "high",
+      "temperature": 0.1
+    },
+
+    // Metis - Pre-planning consultant (orchestration-level)
+    "metis": {
+      "model": "opencode-go/qwen3.7-max",
+      "reasoningEffort": "medium"
+    },
+
+    // Momus - Plan reviewer (orchestration-level)
+    "momus": {
+      "model": "opencode-go/qwen3.7-max",
+      "reasoningEffort": "xhigh"
+    },
+
+    // Explore - Fast codebase grep (deepseek-v4 for speed)
+    "explore": {
+      "model": "opencode-go/deepseek-v4-pro",
+      "temperature": 0.1
+    },
+
+    // Librarian - External docs/code search (deepseek-v4)
+    "librarian": {
+      "model": "opencode-go/deepseek-v4-pro",
+      "temperature": 0.1
+    },
+
+    // Multimodal Looker - Vision/PDF analysis (qwen3.7-max)
+    "multimodal-looker": {
+      "model": "opencode-go/qwen3.7-max"
+    }
+  },
+
+  // ============================================================================
+  // CATEGORIES: Domain-specific task delegation
+  // ============================================================================
+  "categories": {
+    // Deep autonomous research + execution (deepseek-v4 for coding)
+    "deep": {
+      "model": "opencode-go/deepseek-v4-pro",
+      "reasoningEffort": "high"
+    },
+
+    // Hard logic, architecture decisions (qwen3.7-max for reasoning)
+    "ultrabrain": {
+      "model": "opencode-go/qwen3.7-max",
+      "reasoningEffort": "max"
+    },
+
+    // Frontend, UI/UX, design (deepseek-v4)
+    "visual-engineering": {
+      "model": "opencode-go/deepseek-v4-pro",
+      "reasoningEffort": "medium"
+    },
+
+    // Single-file changes, typos (deepseek-v4 for speed)
+    "quick": {
+      "model": "opencode-go/deepseek-v4-pro"
+    },
+
+    // High-effort unspecified tasks (qwen3.7-max)
+    "unspecified-high": {
+      "model": "opencode-go/qwen3.7-max",
+      "reasoningEffort": "high"
+    },
+
+    // Low-effort unspecified tasks (deepseek-v4)
+    "unspecified-low": {
+      "model": "opencode-go/deepseek-v4-pro"
+    },
+
+    // Artistry - creative problem-solving (qwen3.7-max)
+    "artistry": {
+      "model": "opencode-go/qwen3.7-max",
+      "reasoningEffort": "high"
+    },
+
+    // Writing - documentation, prose (deepseek-v4)
+    "writing": {
+      "model": "opencode-go/deepseek-v4-pro"
+    }
+  },
+
+  // ============================================================================
+  // BACKGROUND TASK CONCURRENCY
+  // ============================================================================
+  "background_task": {
+    "providerConcurrency": {
+      "opencode-go": 10
+    },
+    "modelConcurrency": {
+      "opencode-go/qwen3.7-max": 5,
+      "opencode-go/deepseek-v4-pro": 10
+    }
+  }
+}

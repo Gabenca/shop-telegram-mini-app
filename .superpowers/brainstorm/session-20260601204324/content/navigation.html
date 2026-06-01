@@ -1,0 +1,57 @@
+<h2>Как организовать навигацию в приложении?</h2>
+<p class="subtitle">Telegram Mini App работает в ограниченном пространстве — выбор навигации критичен</p>
+
+<div class="options">
+  <div class="option" data-choice="a" onclick="toggleSelect(this)">
+    <div class="letter">A</div>
+    <div class="content">
+      <h3>Нижняя панель (Tab Bar)</h3>
+      <p>4 вкладки внизу: Рецепты | План | Покупки | Профиль. Быстрый доступ к любому разделу одним тапом. Привычный паттерн для мобильных.</p>
+      <div style="margin-top:12px; padding:8px; background:#1a1a2e; border-radius:8px;">
+        <div style="display:flex; justify-content:space-around; padding:8px; background:#16213e; border-radius:6px; font-size:12px;">
+          <span>📖 Рецепты</span>
+          <span>📅 План</span>
+          <span>🛒 Покупки</span>
+          <span>👤 Профиль</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="option" data-choice="b" onclick="toggleSelect(this)">
+    <div class="letter">B</div>
+    <div class="content">
+      <h3>Главный экран + меню</h3>
+      <p>Один главный экран с карточками-разделами. Навигация через крупные кнопки на главном экране. Проще, но больше кликов.</p>
+      <div style="margin-top:12px; padding:8px; background:#1a1a2e; border-radius:8px;">
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; padding:8px;">
+          <div style="background:#16213e; padding:16px; border-radius:6px; text-align:center; font-size:12px;">📖<br>Рецепты</div>
+          <div style="background:#16213e; padding:16px; border-radius:6px; text-align:center; font-size:12px;">📅<br>План на неделю</div>
+          <div style="background:#16213e; padding:16px; border-radius:6px; text-align:center; font-size:12px;">🛒<br>Список покупок</div>
+          <div style="background:#16213e; padding:16px; border-radius:6px; text-align:center; font-size:12px;">👤<br>Профиль</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="option" data-choice="c" onclick="toggleSelect(this)">
+    <div class="letter">C</div>
+    <div class="content">
+      <h3>Гибрид: Табы + свайпы</h3>
+      <p>Нижняя панель с 3 основными табами (Рецепты, План, Покупки), а внутри раздела "План" — свайп между днями недели. Максимум информации на экране.</p>
+      <div style="margin-top:12px; padding:8px; background:#1a1a2e; border-radius:8px;">
+        <div style="text-align:center; font-size:11px; color:#888; margin-bottom:4px;">← Пн | <b>Вт</b> | Ср →</div>
+        <div style="padding:4px 8px; font-size:11px;">
+          <div style="background:#16213e; padding:6px; border-radius:4px; margin:2px 0;">🌅 Завтрак: Овсянка</div>
+          <div style="background:#16213e; padding:6px; border-radius:4px; margin:2px 0;">☀️ Обед: Борщ</div>
+          <div style="background:#16213e; padding:6px; border-radius:4px; margin:2px 0;">🌙 Ужин: Курица</div>
+        </div>
+        <div style="display:flex; justify-content:space-around; padding:8px; background:#16213e; border-radius:6px; font-size:12px; margin-top:4px;">
+          <span>📖 Рецепты</span>
+          <span style="color:#4fc3f7;"><b>📅 План</b></span>
+          <span>🛒 Покупки</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

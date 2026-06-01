@@ -1,0 +1,44 @@
+<h2>Экран детального просмотра рецепта</h2>
+<p class="subtitle">Что показывать, когда пользователь тапнул на рецепт?</p>
+
+<div class="options">
+  <div class="option" data-choice="a" onclick="toggleSelect(this)">
+    <div class="letter">A</div>
+    <div class="content">
+      <h3>Всё на одном экране</h3>
+      <p>Фото вверху, потом название, описание, ингредиенты (с граммовками), и инструкция — всё скроллится вертикально. Кнопка "Добавить в план" внизу.</p>
+      <div style="margin-top:12px; padding:8px; background:#1a1a2e; border-radius:8px; max-width:280px;">
+        <div style="background:#2a2a4a; height:100px; border-radius:6px; display:flex; align-items:center; justify-content:center; font-size:24px;">📷</div>
+        <div style="padding:8px;">
+          <div style="font-weight:bold; margin:4px 0;">Борщ</div>
+          <div style="font-size:11px; color:#888; margin-bottom:8px;">Классический украинский борщ</div>
+          <div style="font-size:11px; font-weight:bold; margin:4px 0;">Ингредиенты:</div>
+          <div style="font-size:10px; color:#aaa;">Свёкла — 300г<br>Капуста — 200г<br>Картофель — 250г</div>
+          <div style="font-size:11px; font-weight:bold; margin:8px 0 4px;">Приготовление:</div>
+          <div style="font-size:10px; color:#aaa;">1. Сварить бульон...<br>2. Нашинковать...</div>
+          <div style="background:#4fc3f7; color:#000; text-align:center; padding:8px; border-radius:6px; margin-top:8px; font-size:12px; font-weight:bold;">+ В план</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="option" data-choice="b" onclick="toggleSelect(this)">
+    <div class="letter">B</div>
+    <div class="content">
+      <h3>Табы внутри рецепта</h3>
+      <p>Фото и название сверху, а ниже переключатель: Ингредиенты | Приготовление. Экран компактнее, легче ориентироваться.</p>
+      <div style="margin-top:12px; padding:8px; background:#1a1a2e; border-radius:8px; max-width:280px;">
+        <div style="background:#2a2a4a; height:80px; border-radius:6px; display:flex; align-items:center; justify-content:center; font-size:24px;">📷</div>
+        <div style="padding:8px;">
+          <div style="font-weight:bold; margin:4px 0;">Борщ</div>
+          <div style="display:flex; gap:0; margin:8px 0;">
+            <div style="flex:1; text-align:center; padding:6px; background:#4fc3f7; color:#000; border-radius:6px 0 0 6px; font-size:11px; font-weight:bold;">Ингредиенты</div>
+            <div style="flex:1; text-align:center; padding:6px; background:#16213e; border-radius:0 6px 6px 0; font-size:11px;">Приготовление</div>
+          </div>
+          <div style="font-size:10px; color:#aaa;">Свёкла — 300г<br>Капуста — 200г<br>Картофель — 250г</div>
+          <div style="background:#4fc3f7; color:#000; text-align:center; padding:8px; border-radius:6px; margin-top:8px; font-size:12px; font-weight:bold;">+ В план</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

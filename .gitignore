@@ -1,0 +1,21 @@
+# Frontend has its own git repository
+frontend/
+
+# IDE files
+.idea/
+*.iml
+
+# Build outputs
+backend/build/
+backend/bin/
+backend/.gradle/
+
+# Node modules
+node_modules/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
