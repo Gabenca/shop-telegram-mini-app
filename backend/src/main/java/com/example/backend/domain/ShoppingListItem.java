@@ -29,4 +29,10 @@ public class ShoppingListItem {
     private boolean checked;
 
     private boolean manual;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "couple_id", nullable = false)
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
+    private Couple couple;
 }

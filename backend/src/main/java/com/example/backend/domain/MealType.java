@@ -1,5 +1,8 @@
 package com.example.backend.domain;
 
 public enum MealType {
-    BREAKFAST, LUNCH, DINNER, SNACK
+    BREAKFAST,
+    LUNCH,
+    AFTERNOON_SNACK,
+    DINNER
 }

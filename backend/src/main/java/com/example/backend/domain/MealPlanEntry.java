@@ -27,4 +27,10 @@ public class MealPlanEntry {
 
     @Enumerated(EnumType.STRING)
     private MealType mealType;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "couple_id", nullable = false)
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
+    private Couple couple;
 }

@@ -35,6 +35,12 @@ public class Recipe {
     @Builder.Default
     private List<Ingredient> ingredients = new ArrayList<>();
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "couple_id", nullable = false)
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
+    private Couple couple;
+
     @CreationTimestamp
     private LocalDateTime createdAt;
 
