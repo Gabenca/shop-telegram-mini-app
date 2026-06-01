@@ -11,6 +11,7 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 
+import java.io.IOException;
 import java.util.Map;
 
 @Service
@@ -27,9 +28,16 @@ public class TelegramBotService {
 
         WebClient webClient = webClientBuilder.build();
 
+        byte[] fileBytes;
+        try {
+            fileBytes = file.getBytes();
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to read uploaded file", e);
+        }
+
         MultipartBodyBuilder builder = new MultipartBodyBuilder();
         builder.part("chat_id", botToken);
-        builder.part("photo", new ByteArrayResource(file.getBytes()) {
+        builder.part("photo", new ByteArrayResource(fileBytes) {
             @Override
             public String getFilename() {
                 return file.getOriginalFilename();
