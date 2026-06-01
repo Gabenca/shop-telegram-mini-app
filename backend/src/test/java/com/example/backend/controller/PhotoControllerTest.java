@@ -40,10 +40,11 @@ class PhotoControllerTest {
             .fileId("test_file_id_123")
             .build();
 
-        when(telegramBotService.uploadPhoto(any())).thenReturn(response);
+        when(telegramBotService.uploadPhoto(any(), any())).thenReturn(response);
 
         mockMvc.perform(multipart("/api/recipes/upload-photo")
-                .file(file))
+                .file(file)
+                .requestAttr("telegramId", 123456789L))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.fileId").value("test_file_id_123"));
     }

@@ -71,10 +71,11 @@ class RecipeServiceTest {
 
     @Test
     void getRecipeById_shouldReturnRecipeDto() {
-        Recipe recipe = Recipe.builder().id(1L).name("Pasta").build();
+        Couple couple = Couple.builder().id(1L).build();
+        Recipe recipe = Recipe.builder().id(1L).name("Pasta").couple(couple).build();
         when(recipeRepository.findById(1L)).thenReturn(Optional.of(recipe));
 
-        RecipeDto result = recipeService.getRecipeById(1L);
+        RecipeDto result = recipeService.getRecipeById(1L, 1L);
 
         assertThat(result.getName()).isEqualTo("Pasta");
     }
