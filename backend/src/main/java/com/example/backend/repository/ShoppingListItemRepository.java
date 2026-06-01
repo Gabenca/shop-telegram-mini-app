@@ -10,4 +10,5 @@ import java.util.List;
 @Repository
 public interface ShoppingListItemRepository extends JpaRepository<ShoppingListItem, Long> {
     List<ShoppingListItem> findByWeekStartDate(LocalDate weekStartDate);
+    List<ShoppingListItem> findByWeekStartDateAndCoupleId(LocalDate weekStartDate, Long coupleId);
 }
