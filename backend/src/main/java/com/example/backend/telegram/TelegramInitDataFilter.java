@@ -46,6 +46,12 @@ public class TelegramInitDataFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, jakarta.servlet.FilterChain filterChain)
             throws ServletException, IOException {
 
+        String requestUri = request.getRequestURI();
+        if (requestUri.equals("/actuator/health") || requestUri.startsWith("/actuator/health")) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
         if (botToken == null || botToken.isBlank()) {
             LOGGER.severe("Telegram bot token is not configured");
             response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Auth configuration error");
