@@ -11,7 +11,7 @@ public class IngredientRequest {
     private String name;
 
     @Positive
-    private Double weightInGrams;
+    private Double quantity;
 
     private String unit;
 }

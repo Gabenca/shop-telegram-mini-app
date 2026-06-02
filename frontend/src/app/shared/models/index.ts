@@ -24,7 +24,7 @@ export interface Recipe {
 export interface Ingredient {
   id: number;
   name: string;
-  weightInGrams: number;
+  quantity: number;
   unit: 'GRAM' | 'MILLILITER' | 'PIECE';
 }
 
@@ -55,7 +55,7 @@ export interface CreateRecipeRequest {
 
 export interface IngredientRequest {
   name: string;
-  weightInGrams: number;
+  quantity: number;
   unit: 'GRAM' | 'MILLILITER' | 'PIECE';
 }
 

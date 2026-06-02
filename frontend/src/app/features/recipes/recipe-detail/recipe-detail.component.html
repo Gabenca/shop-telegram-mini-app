@@ -37,7 +37,7 @@
           @for (ingredient of recipe.ingredients; track ingredient.id) {
             <li class="ingredient-item">
               <span class="ingredient-name">{{ ingredient.name }}</span>
-              <span class="ingredient-amount">{{ ingredient.weightInGrams }} {{ ingredient.unit === 'GRAM' ? 'г' : ingredient.unit === 'MILLILITER' ? 'мл' : 'шт' }}</span>
+              <span class="ingredient-amount">{{ ingredient.quantity }} {{ ingredient.unit === 'GRAM' ? 'г' : ingredient.unit === 'MILLILITER' ? 'мл' : 'шт' }}</span>
             </li>
           }
         </ul>

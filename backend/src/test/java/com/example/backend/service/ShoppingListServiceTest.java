@@ -40,8 +40,8 @@ class ShoppingListServiceTest {
     void regenerateShoppingList_shouldAggregateIngredients() {
         LocalDate weekStart = LocalDate.now();
         Recipe recipe = Recipe.builder().id(1L).name("Pasta").ingredients(new ArrayList<>()).build();
-        recipe.getIngredients().add(Ingredient.builder().name("Flour").weightInGrams(500.0).unit(Unit.GRAM).build());
-        recipe.getIngredients().add(Ingredient.builder().name("Flour").weightInGrams(300.0).unit(Unit.GRAM).build());
+        recipe.getIngredients().add(Ingredient.builder().name("Flour").quantity(500.0).unit(Unit.GRAM).build());
+        recipe.getIngredients().add(Ingredient.builder().name("Flour").quantity(300.0).unit(Unit.GRAM).build());
 
         MealPlanEntry entry = MealPlanEntry.builder().date(weekStart).recipe(recipe).build();
 

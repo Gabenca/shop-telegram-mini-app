@@ -49,7 +49,7 @@ export class RecipeFormComponent implements OnInit, OnDestroy {
           this.instructions = recipe.instructions;
           this.ingredients = recipe.ingredients.map(i => ({
             name: i.name,
-            weightInGrams: i.weightInGrams,
+            quantity: i.quantity,
             unit: i.unit
           }));
         }
@@ -73,7 +73,7 @@ export class RecipeFormComponent implements OnInit, OnDestroy {
   addIngredient() {
     this.ingredients.push({
       name: '',
-      weightInGrams: 0,
+      quantity: 0,
       unit: 'GRAM'
     });
   }

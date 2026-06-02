@@ -23,7 +23,7 @@ public class Ingredient {
 
     private String name;
 
-    private Double weightInGrams;
+    private Double quantity;
 
     @Enumerated(EnumType.STRING)
     private Unit unit;

@@ -8,6 +8,6 @@ public class IngredientDto {
 
     private Long id;
     private String name;
-    private Double weightInGrams;
+    private Double quantity;
     private Unit unit;
 }

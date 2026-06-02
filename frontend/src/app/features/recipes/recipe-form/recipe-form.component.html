@@ -28,7 +28,7 @@
     @for (ingredient of ingredients; track $index; let i = $index) {
       <div class="ingredient-row">
         <input type="text" class="form-input ingredient-name" [(ngModel)]="ingredient.name" placeholder="Название" />
-        <input type="number" class="form-input ingredient-amount" [(ngModel)]="ingredient.weightInGrams" placeholder="0" />
+        <input type="number" class="form-input ingredient-amount" [(ngModel)]="ingredient.quantity" placeholder="0" />
         <select class="form-select ingredient-unit" [(ngModel)]="ingredient.unit">
           @for (unit of units; track unit.value) {
             <option [value]="unit.value">{{ unit.label }}</option>
