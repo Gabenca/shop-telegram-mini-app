@@ -1,0 +1,96 @@
+.container {
+  padding: 24px;
+  text-align: center;
+}
+
+.title {
+  font-size: 28px;
+  font-weight: bold;
+  margin-bottom: 48px;
+}
+
+.buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.btn {
+  padding: 16px 24px;
+  border-radius: 12px;
+  font-size: 16px;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  transition: opacity 0.2s;
+
+  &:active {
+    opacity: 0.7;
+  }
+}
+
+.btn-primary {
+  background: var(--tg-theme-button-color, #4fc3f7);
+  color: var(--tg-theme-button-text-color, #000);
+}
+
+.btn-secondary {
+  background: var(--tg-theme-secondary-bg-color, #f0f0f0);
+  color: var(--tg-theme-text-color, #000);
+}
+
+.code-section {
+  margin-top: 24px;
+}
+
+.subtitle {
+  font-size: 14px;
+  color: var(--tg-theme-hint-color, #888);
+  margin-bottom: 16px;
+}
+
+.code-display {
+  font-size: 36px;
+  font-weight: bold;
+  letter-spacing: 8px;
+  padding: 24px;
+  background: var(--tg-theme-secondary-bg-color, #f0f0f0);
+  border-radius: 12px;
+  margin-bottom: 24px;
+}
+
+.join-section {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.btn-back {
+  align-self: flex-start;
+  background: none;
+  border: none;
+  color: var(--tg-theme-link-color, #4fc3f7);
+  font-size: 14px;
+  cursor: pointer;
+  padding: 0;
+}
+
+.code-input {
+  padding: 16px;
+  font-size: 24px;
+  text-align: center;
+  letter-spacing: 8px;
+  border: 2px solid var(--tg-theme-hint-color, #ccc);
+  border-radius: 12px;
+  background: var(--tg-theme-bg-color, #fff);
+  color: var(--tg-theme-text-color, #000);
+}
+
+.error {
+  margin-top: 16px;
+  padding: 12px;
+  background: #ff5252;
+  color: #fff;
+  border-radius: 8px;
+  font-size: 14px;
+}

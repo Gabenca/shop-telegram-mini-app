@@ -1,0 +1,18 @@
+<div class="container">
+  <h1 class="title">Рецепты</h1>
+
+  <div class="recipe-grid">
+    @for (recipe of recipes; track recipe.id) {
+      <app-recipe-card [recipe]="recipe" />
+    }
+  </div>
+
+  @if (recipes.length === 0) {
+    <div class="empty-state">
+      <p>Пока нет рецептов</p>
+      <p class="subtitle">Добавьте первый рецепт!</p>
+    </div>
+  }
+
+  <button class="fab" (click)="addRecipe()">+</button>
+</div>

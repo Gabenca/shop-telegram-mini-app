@@ -17,3 +17,7 @@ Thumbs.db
 
 # Logs
 *.log
+
+# Compiled frontend artifacts inside backend
+backend/src/main/resources/static/
+

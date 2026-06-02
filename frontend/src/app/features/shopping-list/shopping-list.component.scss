@@ -1,0 +1,173 @@
+.container {
+  padding: 16px;
+  padding-bottom: 80px;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.title {
+  font-size: 24px;
+  font-weight: bold;
+  margin: 0;
+  color: var(--tg-theme-text-color, #000);
+}
+
+.icon-btn {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--tg-theme-secondary-bg-color, #f0f0f0);
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+}
+
+.week-range {
+  font-size: 14px;
+  color: var(--tg-theme-hint-color, #888);
+  margin-bottom: 16px;
+}
+
+.items-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  background: var(--tg-theme-secondary-bg-color, #f0f0f0);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: opacity 0.2s;
+
+  &:active {
+    opacity: 0.7;
+  }
+
+  &.checked {
+    opacity: 0.5;
+
+    .item-name {
+      text-decoration: line-through;
+    }
+  }
+}
+
+.checkbox {
+  font-size: 24px;
+}
+
+.item-info {
+  flex: 1;
+}
+
+.item-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--tg-theme-text-color, #000);
+}
+
+.item-quantity {
+  font-size: 12px;
+  color: var(--tg-theme-hint-color, #888);
+}
+
+.manual-badge {
+  font-size: 10px;
+  padding: 4px 8px;
+  background: var(--tg-theme-button-color, #4fc3f7);
+  color: var(--tg-theme-button-text-color, #000);
+  border-radius: 4px;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 48px 24px;
+  color: var(--tg-theme-hint-color, #888);
+
+  p {
+    margin: 8px 0;
+  }
+
+  .subtitle {
+    font-size: 14px;
+  }
+}
+
+.fab {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: var(--tg-theme-button-color, #4fc3f7);
+  color: var(--tg-theme-button-text-color, #000);
+  font-size: 32px;
+  font-weight: 300;
+  border: none;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  cursor: pointer;
+}
+
+.modal-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.form-label {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--tg-theme-text-color, #000);
+}
+
+.form-input {
+  padding: 12px;
+  border: 1px solid var(--tg-theme-hint-color, #ccc);
+  border-radius: 8px;
+  font-size: 14px;
+  background: var(--tg-theme-bg-color, #fff);
+  color: var(--tg-theme-text-color, #000);
+}
+
+.form-select {
+  padding: 12px;
+  border: 1px solid var(--tg-theme-hint-color, #ccc);
+  border-radius: 8px;
+  font-size: 14px;
+  background: var(--tg-theme-bg-color, #fff);
+  color: var(--tg-theme-text-color, #000);
+}
+
+.btn-primary {
+  padding: 12px;
+  background: var(--tg-theme-button-color, #4fc3f7);
+  color: var(--tg-theme-button-text-color, #000);
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}

@@ -1,0 +1,25 @@
+<div class="container">
+  <h1 class="title">Профиль пары</h1>
+
+  @if (couple) {
+    <div class="section">
+      <h2 class="section-title">Участники</h2>
+      <div class="users-list">
+        @for (user of couple.users; track user.id) {
+          <div class="user-item">
+            <div class="user-icon">👤</div>
+            <div class="user-name">{{ user.username }}</div>
+          </div>
+        }
+      </div>
+    </div>
+
+    <div class="section">
+      <h2 class="section-title">Код приглашения</h2>
+      <div class="invite-code">{{ couple.inviteCode }}</div>
+      <button class="btn-share" (click)="shareCode()">Поделиться</button>
+    </div>
+
+    <button class="btn-leave" (click)="leaveCouple()">Покинуть пару</button>
+  }
+</div>

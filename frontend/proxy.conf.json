@@ -1,0 +1,7 @@
+{
+    "/api":  {
+                 "secure":  true,
+                 "changeOrigin":  true,
+                 "target":  "https://a1b2c3d4.ngrok-free.app"
+             }
+}

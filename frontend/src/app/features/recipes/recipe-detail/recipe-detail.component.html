@@ -1,0 +1,80 @@
+@if (recipe) {
+  <div class="container">
+    <div class="image-container">
+      @if (recipe.photoUrl) {
+        <img [src]="'/api/recipes/photo/' + recipe.photoUrl" [alt]="recipe.name" class="recipe-image" />
+      } @else {
+        <div class="placeholder-image">📷</div>
+      }
+    </div>
+
+    <div class="actions">
+      <button class="icon-btn" (click)="editRecipe()">✏️</button>
+      <button class="icon-btn" (click)="deleteRecipe()">🗑️</button>
+    </div>
+
+    <h1 class="recipe-name">{{ recipe.name }}</h1>
+    <p class="recipe-description">{{ recipe.description }}</p>
+
+    <div class="tabs">
+      <button
+        class="tab"
+        [class.active]="activeTab === 'ingredients'"
+        (click)="setTab('ingredients')">
+        Ингредиенты
+      </button>
+      <button
+        class="tab"
+        [class.active]="activeTab === 'instructions'"
+        (click)="setTab('instructions')">
+        Приготовление
+      </button>
+    </div>
+
+    <div class="tab-content">
+      @if (activeTab === 'ingredients') {
+        <ul class="ingredients-list">
+          @for (ingredient of recipe.ingredients; track ingredient.id) {
+            <li class="ingredient-item">
+              <span class="ingredient-name">{{ ingredient.name }}</span>
+              <span class="ingredient-amount">{{ ingredient.weightInGrams }} {{ ingredient.unit === 'GRAM' ? 'г' : ingredient.unit === 'MILLILITER' ? 'мл' : 'шт' }}</span>
+            </li>
+          }
+        </ul>
+      } @else {
+        <div class="instructions">{{ recipe.instructions }}</div>
+      }
+    </div>
+
+    <button class="btn-add-to-plan" (click)="openAddToPlanModal()">
+      + Добавить в план
+    </button>
+  </div>
+
+  <app-modal [isOpen]="showAddToPlanModal" title="Добавить в план" (close)="closeAddToPlanModal()">
+    <div class="modal-form">
+      <div class="form-section">
+        <label class="form-label">Выберите дни:</label>
+        <div class="days-grid">
+          @for (day of dayNames; track day; let i = $index) {
+            <label class="day-checkbox">
+              <input type="checkbox" [(ngModel)]="selectedDays[i]" />
+              <span>{{ day }}</span>
+            </label>
+          }
+        </div>
+      </div>
+
+      <div class="form-section">
+        <label class="form-label">Приём пищи:</label>
+        <select [(ngModel)]="selectedMealType" class="form-select">
+          @for (type of mealTypes; track type.value) {
+            <option [value]="type.value">{{ type.label }}</option>
+          }
+        </select>
+      </div>
+
+      <button class="btn-primary" (click)="addToPlan()">Добавить</button>
+    </div>
+  </app-modal>
+}

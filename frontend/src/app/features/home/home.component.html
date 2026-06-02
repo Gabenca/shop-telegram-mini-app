@@ -1,0 +1,12 @@
+<div class="container">
+  <h1 class="title">Планировщик питания</h1>
+
+  <div class="sections-grid">
+    @for (section of sections; track section.route) {
+      <div class="section-card" (click)="navigateTo(section.route)">
+        <div class="section-icon">{{ section.icon }}</div>
+        <div class="section-title">{{ section.title }}</div>
+      </div>
+    }
+  </div>
+</div>

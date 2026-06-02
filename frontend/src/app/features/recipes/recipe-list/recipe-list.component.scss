@@ -1,0 +1,52 @@
+.container {
+  padding: 16px;
+  padding-bottom: 80px;
+}
+
+.title {
+  font-size: 24px;
+  font-weight: bold;
+  margin-bottom: 16px;
+  color: var(--tg-theme-text-color, #000);
+}
+
+.recipe-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 48px 24px;
+  color: var(--tg-theme-hint-color, #888);
+
+  p {
+    margin: 8px 0;
+  }
+
+  .subtitle {
+    font-size: 14px;
+  }
+}
+
+.fab {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: var(--tg-theme-button-color, #4fc3f7);
+  color: var(--tg-theme-button-text-color, #000);
+  font-size: 32px;
+  font-weight: 300;
+  border: none;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  cursor: pointer;
+  transition: transform 0.2s;
+
+  &:active {
+    transform: scale(0.95);
+  }
+}

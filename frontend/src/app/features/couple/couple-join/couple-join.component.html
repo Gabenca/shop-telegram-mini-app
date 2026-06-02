@@ -1,0 +1,45 @@
+<div class="container">
+  <h1 class="title">Планировщик питания</h1>
+
+  @if (mode === 'initial') {
+    <div class="buttons">
+      <button class="btn btn-primary" (click)="createCouple()">
+        Создать пару
+      </button>
+      <button class="btn btn-secondary" (click)="showJoinMode()">
+        Ввести код
+      </button>
+    </div>
+  }
+
+  @if (mode === 'create') {
+    <div class="code-section">
+      <p class="subtitle">Поделитесь кодом с партнёром:</p>
+      <div class="code-display">{{ generatedCode }}</div>
+      <button class="btn btn-primary" (click)="shareCode()">
+        Поделиться
+      </button>
+    </div>
+  }
+
+  @if (mode === 'join') {
+    <div class="join-section">
+      <button class="btn-back" (click)="backToInitial()">← Назад</button>
+      <input
+        type="text"
+        class="code-input"
+        [(ngModel)]="inviteCode"
+        placeholder="Введите 6-значный код"
+        maxlength="6"
+        (keyup.enter)="joinCouple()"
+      />
+      <button class="btn btn-primary" (click)="joinCouple()">
+        Присоединиться
+      </button>
+    </div>
+  }
+
+  @if (error) {
+    <div class="error">{{ error }}</div>
+  }
+</div>

@@ -1,0 +1,37 @@
+<div class="container">
+  <h1 class="title">План на неделю</h1>
+  <div class="week-range">{{ getWeekRange() }}</div>
+
+  <div class="week-nav">
+    <button class="nav-btn" (click)="previousWeek()">← Пред.</button>
+    <button class="nav-btn" (click)="nextWeek()">След. →</button>
+  </div>
+
+  <div class="days-list">
+    @for (day of days; track day.date) {
+      <app-day-card
+        [date]="day.date"
+        [dayName]="day.dayName"
+        [entries]="day.entries"
+        (slotClick)="onSlotClick($event)"
+      />
+    }
+  </div>
+
+  <button class="btn-generate" (click)="generateShoppingList()">
+    Сгенерировать список покупок
+  </button>
+</div>
+
+<app-modal [isOpen]="showRecipeModal" title="Выберите рецепт" (close)="closeRecipeModal()">
+  <div class="recipe-list">
+    @for (recipe of recipes; track recipe.id) {
+      <div class="recipe-option" (click)="selectRecipe(recipe)">
+        {{ recipe.name }}
+      </div>
+    }
+    @if (recipes.length === 0) {
+      <div class="empty-state">Нет рецептов</div>
+    }
+  </div>
+</app-modal>

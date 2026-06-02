@@ -1,0 +1,82 @@
+.container {
+  padding: 24px;
+}
+
+.title {
+  font-size: 24px;
+  font-weight: bold;
+  margin-bottom: 24px;
+  color: var(--tg-theme-text-color, #000);
+}
+
+.section {
+  margin-bottom: 32px;
+}
+
+.section-title {
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 12px;
+  color: var(--tg-theme-text-color, #000);
+}
+
+.users-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.user-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  background: var(--tg-theme-secondary-bg-color, #f0f0f0);
+  border-radius: 8px;
+}
+
+.user-icon {
+  font-size: 24px;
+}
+
+.user-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--tg-theme-text-color, #000);
+}
+
+.invite-code {
+  font-size: 36px;
+  font-weight: bold;
+  letter-spacing: 8px;
+  text-align: center;
+  padding: 24px;
+  background: var(--tg-theme-secondary-bg-color, #f0f0f0);
+  border-radius: 12px;
+  margin-bottom: 16px;
+  color: var(--tg-theme-text-color, #000);
+}
+
+.btn-share {
+  width: 100%;
+  padding: 12px;
+  background: var(--tg-theme-button-color, #4fc3f7);
+  color: var(--tg-theme-button-text-color, #000);
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.btn-leave {
+  width: 100%;
+  padding: 12px;
+  background: #ff5252;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}

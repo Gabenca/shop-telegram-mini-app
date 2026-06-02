@@ -1,0 +1,10 @@
+<div class="recipe-card" (click)="onClick()">
+  <div class="image-container">
+    @if (recipe.photoUrl) {
+      <img [src]="'/api/recipes/photo/' + recipe.photoUrl" [alt]="recipe.name" class="recipe-image" />
+    } @else {
+      <div class="placeholder-image">📷</div>
+    }
+  </div>
+  <div class="recipe-name">{{ recipe.name }}</div>
+</div>

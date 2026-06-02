@@ -1,0 +1,15 @@
+<div class="day-card">
+  <div class="day-header">{{ dayName }}, {{ date | date:'d MMM':'ru' }}</div>
+
+  <div class="meal-slots">
+    @for (meal of mealTypes; track meal.type) {
+      <div class="meal-slot" (click)="onSlotClick(meal.type)">
+        <span class="meal-icon">{{ meal.icon }}</span>
+        <span class="meal-label">{{ meal.label }}:</span>
+        <span class="meal-recipe" [class.empty]="getRecipeForMeal(meal.type) === '—'">
+          {{ getRecipeForMeal(meal.type) }}
+        </span>
+      </div>
+    }
+  </div>
+</div>

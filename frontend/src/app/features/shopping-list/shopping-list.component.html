@@ -1,0 +1,58 @@
+<div class="container">
+  <div class="header">
+    <h1 class="title">Список покупок</h1>
+    <button class="icon-btn" (click)="regenerateList()">🔄</button>
+  </div>
+  <div class="week-range">{{ getWeekRange() }}</div>
+
+  <div class="items-list">
+    @for (item of items; track item.id) {
+      <div class="item" [class.checked]="item.checked" (click)="toggleItem(item)">
+        <div class="checkbox">{{ item.checked ? '☑' : '☐' }}</div>
+        <div class="item-info">
+          <div class="item-name">{{ item.ingredientName }}</div>
+          <div class="item-quantity">{{ item.totalQuantity }} {{ item.unit === 'GRAM' ? 'г' : item.unit === 'MILLILITER' ? 'мл' : 'шт' }}</div>
+        </div>
+        @if (item.manual) {
+          <div class="manual-badge">вручную</div>
+        }
+      </div>
+    }
+
+    @if (items.length === 0) {
+      <div class="empty-state">
+        <p>Список пуст</p>
+        <p class="subtitle">Сгенерируйте из плана или добавьте вручную</p>
+      </div>
+    }
+  </div>
+
+  <button class="fab" (click)="openAddModal()">+</button>
+</div>
+
+<app-modal [isOpen]="showAddModal" title="Добавить продукт" (close)="closeAddModal()">
+  <div class="modal-form">
+    <div class="form-group">
+      <label class="form-label">Название</label>
+      <input type="text" class="form-input" [(ngModel)]="newItemName" placeholder="Например: Молоко" />
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Количество</label>
+        <input type="number" class="form-input" [(ngModel)]="newItemQuantity" placeholder="0" />
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Единица</label>
+        <select class="form-select" [(ngModel)]="newItemUnit">
+          @for (unit of units; track unit.value) {
+            <option [value]="unit.value">{{ unit.label }}</option>
+          }
+        </select>
+      </div>
+    </div>
+
+    <button class="btn-primary" (click)="addItem()">Добавить</button>
+  </div>
+</app-modal>

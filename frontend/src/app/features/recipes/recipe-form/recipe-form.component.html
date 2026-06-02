@@ -1,0 +1,47 @@
+<div class="container">
+  <h1 class="title">{{ isEditMode ? 'Редактировать рецепт' : 'Новый рецепт' }}</h1>
+
+  <div class="form-group">
+    <label class="form-label">Название</label>
+    <input type="text" class="form-input" [(ngModel)]="name" placeholder="Например: Борщ" />
+  </div>
+
+  <div class="form-group">
+    <label class="form-label">Описание</label>
+    <textarea class="form-textarea" [(ngModel)]="description" placeholder="Краткое описание блюда" rows="3"></textarea>
+  </div>
+
+  <div class="form-group">
+    <label class="form-label">Фото</label>
+    @if (photoUrl) {
+      <div class="photo-preview">
+        <img [src]="'/api/recipes/photo/' + photoUrl" alt="Preview" />
+        <button class="btn-change-photo" (click)="addPhoto()">Изменить фото</button>
+      </div>
+    } @else {
+      <button class="btn-add-photo" (click)="addPhoto()">+ Добавить фото</button>
+    }
+  </div>
+
+  <div class="form-group">
+    <label class="form-label">Ингредиенты</label>
+    @for (ingredient of ingredients; track $index; let i = $index) {
+      <div class="ingredient-row">
+        <input type="text" class="form-input ingredient-name" [(ngModel)]="ingredient.name" placeholder="Название" />
+        <input type="number" class="form-input ingredient-amount" [(ngModel)]="ingredient.weightInGrams" placeholder="0" />
+        <select class="form-select ingredient-unit" [(ngModel)]="ingredient.unit">
+          @for (unit of units; track unit.value) {
+            <option [value]="unit.value">{{ unit.label }}</option>
+          }
+        </select>
+        <button class="btn-remove" (click)="removeIngredient(i)">×</button>
+      </div>
+    }
+    <button class="btn-add-ingredient" (click)="addIngredient()">+ Ингредиент</button>
+  </div>
+
+  <div class="form-group">
+    <label class="form-label">Инструкция приготовления</label>
+    <textarea class="form-textarea" [(ngModel)]="instructions" placeholder="Пошаговая инструкция" rows="8"></textarea>
+  </div>
+</div>
