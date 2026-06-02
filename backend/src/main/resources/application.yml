@@ -20,6 +20,8 @@ spring:
   h2:
     console:
       enabled: true
+  flyway:
+    enabled: false
 
 ---
 spring:
@@ -33,6 +35,9 @@ spring:
   jpa:
     hibernate:
       ddl-auto: validate
+  flyway:
+    enabled: true
+    baseline-on-migrate: true
 
 telegram:
   bot-token: ${TELEGRAM_BOT_TOKEN:}
