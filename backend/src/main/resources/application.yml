@@ -27,9 +27,12 @@ spring:
     activate:
       on-profile: prod
   datasource:
-    url: jdbc:postgresql://localhost:5432/recipe_db
-    username: postgres
-    password: password
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/recipe_db}
+    username: ${SPRING_DATASOURCE_USERNAME:postgres}
+    password: ${SPRING_DATASOURCE_PASSWORD:password}
   jpa:
     hibernate:
       ddl-auto: validate
+
+telegram:
+  bot-token: ${TELEGRAM_BOT_TOKEN:}

@@ -22,7 +22,8 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(MealPlanController.class)
-@AutoConfigureMockMvc(addFilters = false)
+@AutoConfigureMockMvc
+@org.springframework.security.test.context.support.WithMockUser
 class MealPlanControllerTest {
 
     @Autowired

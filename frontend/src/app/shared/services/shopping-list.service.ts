@@ -4,19 +4,27 @@ import { tap } from 'rxjs/operators';
 import { ApiService } from './api.service';
 import { ShoppingListItem, CreateManualItemRequest } from '../models';
 
+import { Injectable } from '@angular/core';
+import { Observable, BehaviorSubject } from 'rxjs';
+import { tap } from 'rxjs/operators';
+import { ApiService } from './api.service';
+import { ShoppingListItem, CreateManualItemRequest } from '../models';
+
 @Injectable({
   providedIn: 'root'
 })
-export class ShoppingListService extends ApiService {
+export class ShoppingListService {
 
   private shoppingList$ = new BehaviorSubject<ShoppingListItem[]>([]);
+
+  constructor(private api: ApiService) {}
 
   getShoppingListObservable(): Observable<ShoppingListItem[]> {
     return this.shoppingList$.asObservable();
   }
 
   loadShoppingList(weekStart: string): Observable<ShoppingListItem[]> {
-    return this.http.get<ShoppingListItem[]>(`${this.baseUrl}/shopping-list`, {
+    return this.api.http.get<ShoppingListItem[]>(`${this.api.baseUrl}/shopping-list`, {
       params: { weekStart }
     }).pipe(
       tap(items => this.shoppingList$.next(items))
@@ -24,7 +32,7 @@ export class ShoppingListService extends ApiService {
   }
 
   regenerateShoppingList(weekStart: string): Observable<ShoppingListItem[]> {
-    return this.http.post<ShoppingListItem[]>(`${this.baseUrl}/shopping-list/regenerate`, {}, {
+    return this.api.http.post<ShoppingListItem[]>(`${this.api.baseUrl}/shopping-list/regenerate`, {}, {
       params: { weekStart }
     }).pipe(
       tap(items => this.shoppingList$.next(items))
@@ -32,7 +40,7 @@ export class ShoppingListService extends ApiService {
   }
 
   addManualItem(request: CreateManualItemRequest, weekStart: string): Observable<ShoppingListItem> {
-    return this.http.post<ShoppingListItem>(`${this.baseUrl}/shopping-list/items`, request, {
+    return this.api.http.post<ShoppingListItem>(`${this.api.baseUrl}/shopping-list/items`, request, {
       params: { weekStart }
     }).pipe(
       tap(item => {
@@ -43,7 +51,7 @@ export class ShoppingListService extends ApiService {
   }
 
   toggleItemChecked(id: number): Observable<ShoppingListItem> {
-    return this.http.patch<ShoppingListItem>(`${this.baseUrl}/shopping-list/items/${id}`, {}).pipe(
+    return this.api.http.patch<ShoppingListItem>(`${this.api.baseUrl}/shopping-list/items/${id}`, {}).pipe(
       tap(updatedItem => {
         const current = this.shoppingList$.value;
         const index = current.findIndex(i => i.id === id);
@@ -56,7 +64,7 @@ export class ShoppingListService extends ApiService {
   }
 
   deleteItem(id: number): Observable<void> {
-    return this.http.delete<void>(`${this.baseUrl}/shopping-list/items/${id}`).pipe(
+    return this.api.http.delete<void>(`${this.api.baseUrl}/shopping-list/items/${id}`).pipe(
       tap(() => {
         const current = this.shoppingList$.value;
         this.shoppingList$.next(current.filter(i => i.id !== id));
