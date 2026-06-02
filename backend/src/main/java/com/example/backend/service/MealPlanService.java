@@ -39,6 +39,10 @@ public class MealPlanService {
         Recipe recipe = recipeRepository.findById(request.getRecipeId())
                 .orElseThrow(() -> new ResourceNotFoundException("Recipe not found: " + request.getRecipeId()));
 
+        if (!recipe.getCouple().getId().equals(coupleId)) {
+            throw new AccessDeniedException("Recipe does not belong to your couple");
+        }
+
         Couple couple = coupleRepository.findById(coupleId)
             .orElseThrow(() -> new ResourceNotFoundException("Couple not found"));
 

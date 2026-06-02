@@ -17,19 +17,36 @@ import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
 
+package com.example.backend.controller;
+
+import com.example.backend.domain.User;
+import com.example.backend.dto.CreateMealPlanEntryRequest;
+import com.example.backend.dto.MealPlanEntryDto;
+import com.example.backend.service.MealPlanService;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Positive;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.*;
+
+import java.time.LocalDate;
+import java.util.Collections;
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/meal-plan")
 @RequiredArgsConstructor
+@Validated
 public class MealPlanController {
 
     private final MealPlanService mealPlanService;
-    private final UserRepository userRepository;
 
     @GetMapping
     public ResponseEntity<List<MealPlanEntryDto>> getMealPlanForWeek(
             @RequestParam LocalDate weekStart,
-            HttpServletRequest request) {
-        User user = getUserFromRequest(request);
+            User user) {
         if (user.getCouple() == null) {
             return ResponseEntity.ok(Collections.emptyList());
         }
@@ -41,8 +58,7 @@ public class MealPlanController {
     @PostMapping
     public ResponseEntity<MealPlanEntryDto> addMealPlanEntry(
             @Valid @RequestBody CreateMealPlanEntryRequest createRequest,
-            HttpServletRequest request) {
-        User user = getUserFromRequest(request);
+            User user) {
         if (user.getCouple() == null) {
             return ResponseEntity.badRequest().build();
         }
@@ -53,17 +69,10 @@ public class MealPlanController {
 
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteMealPlanEntry(@PathVariable Long id, HttpServletRequest request) {
-        User user = getUserFromRequest(request);
+    public void deleteMealPlanEntry(@PathVariable @Positive Long id, User user) {
         if (user.getCouple() == null) {
             throw new IllegalStateException("User not in a couple");
         }
         mealPlanService.deleteMealPlanEntry(id, user.getCouple().getId());
-    }
-
-    private User getUserFromRequest(HttpServletRequest request) {
-        Long userId = (Long) request.getAttribute("userId");
-        return userRepository.findById(userId)
-            .orElseThrow(() -> new ResourceNotFoundException("User not found"));
     }
 }

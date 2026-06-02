@@ -16,17 +16,33 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Collections;
 import java.util.List;
 
+package com.example.backend.controller;
+
+import com.example.backend.domain.User;
+import com.example.backend.dto.CreateRecipeRequest;
+import com.example.backend.dto.RecipeDto;
+import com.example.backend.service.RecipeService;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Positive;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.Collections;
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/recipes")
 @RequiredArgsConstructor
+@Validated
 public class RecipeController {
 
     private final RecipeService recipeService;
-    private final UserRepository userRepository;
 
     @GetMapping
-    public ResponseEntity<List<RecipeDto>> getAllRecipes(HttpServletRequest request) {
-        User user = getUserFromRequest(request);
+    public ResponseEntity<List<RecipeDto>> getAllRecipes(User user) {
         if (user.getCouple() == null) {
             return ResponseEntity.ok(Collections.emptyList());
         }
@@ -36,19 +52,18 @@ public class RecipeController {
     }
 
     @GetMapping("/{id}")
-    public RecipeDto getRecipeById(@PathVariable Long id, HttpServletRequest request) {
-        User user = getUserFromRequest(request);
+    public ResponseEntity<RecipeDto> getRecipeById(@PathVariable @Positive Long id, User user) {
         if (user.getCouple() == null) {
             throw new IllegalStateException("User not in a couple");
         }
-        return recipeService.getRecipeById(id, user.getCouple().getId());
+        RecipeDto dto = recipeService.getRecipeById(id, user.getCouple().getId());
+        return ResponseEntity.ok(dto);
     }
 
     @PostMapping
     public ResponseEntity<RecipeDto> createRecipe(
             @Valid @RequestBody CreateRecipeRequest createRequest,
-            HttpServletRequest request) {
-        User user = getUserFromRequest(request);
+            User user) {
         if (user.getCouple() == null) {
             return ResponseEntity.badRequest().build();
         }
@@ -58,27 +73,20 @@ public class RecipeController {
     }
 
     @PutMapping("/{id}")
-    public RecipeDto updateRecipe(@PathVariable Long id, @RequestBody @Valid CreateRecipeRequest request, HttpServletRequest httpRequest) {
-        User user = getUserFromRequest(httpRequest);
+    public ResponseEntity<RecipeDto> updateRecipe(@PathVariable @Positive Long id, @RequestBody @Valid CreateRecipeRequest request, User user) {
         if (user.getCouple() == null) {
             throw new IllegalStateException("User not in a couple");
         }
-        return recipeService.updateRecipe(id, request, user.getCouple().getId());
+        RecipeDto dto = recipeService.updateRecipe(id, request, user.getCouple().getId());
+        return ResponseEntity.ok(dto);
     }
 
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteRecipe(@PathVariable Long id, HttpServletRequest request) {
-        User user = getUserFromRequest(request);
+    public void deleteRecipe(@PathVariable @Positive Long id, User user) {
         if (user.getCouple() == null) {
             throw new IllegalStateException("User not in a couple");
         }
         recipeService.deleteRecipe(id, user.getCouple().getId());
-    }
-
-    private User getUserFromRequest(HttpServletRequest request) {
-        Long userId = (Long) request.getAttribute("userId");
-        return userRepository.findById(userId)
-            .orElseThrow(() -> new ResourceNotFoundException("User not found"));
     }
 }

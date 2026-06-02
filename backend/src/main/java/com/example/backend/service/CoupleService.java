@@ -100,11 +100,8 @@ public class CoupleService {
         user.setCouple(null);
         userRepository.save(user);
 
-        List<User> remainingUsers = couple.getUsers().stream()
-            .filter(u -> u.getCouple() != null)
-            .collect(Collectors.toList());
-
-        if (remainingUsers.isEmpty()) {
+        long remainingCount = userRepository.countByCoupleId(couple.getId());
+        if (remainingCount == 0) {
             coupleRepository.delete(couple);
         }
     }

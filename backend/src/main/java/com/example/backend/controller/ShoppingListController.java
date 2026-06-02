@@ -17,19 +17,36 @@ import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
 
+package com.example.backend.controller;
+
+import com.example.backend.domain.User;
+import com.example.backend.dto.CreateManualItemRequest;
+import com.example.backend.dto.ShoppingListItemDto;
+import com.example.backend.service.ShoppingListService;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Positive;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.*;
+
+import java.time.LocalDate;
+import java.util.Collections;
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/shopping-list")
 @RequiredArgsConstructor
+@Validated
 public class ShoppingListController {
 
     private final ShoppingListService shoppingListService;
-    private final UserRepository userRepository;
 
     @GetMapping
     public ResponseEntity<List<ShoppingListItemDto>> getShoppingListForWeek(
             @RequestParam LocalDate weekStart,
-            HttpServletRequest request) {
-        User user = getUserFromRequest(request);
+            User user) {
         if (user.getCouple() == null) {
             return ResponseEntity.ok(Collections.emptyList());
         }
@@ -41,8 +58,7 @@ public class ShoppingListController {
     @PostMapping("/regenerate")
     public ResponseEntity<List<ShoppingListItemDto>> regenerateShoppingList(
             @RequestParam LocalDate weekStart,
-            HttpServletRequest request) {
-        User user = getUserFromRequest(request);
+            User user) {
         if (user.getCouple() == null) {
             return ResponseEntity.badRequest().build();
         }
@@ -55,8 +71,7 @@ public class ShoppingListController {
     public ResponseEntity<ShoppingListItemDto> addManualItem(
             @Valid @RequestBody CreateManualItemRequest createRequest,
             @RequestParam LocalDate weekStart,
-            HttpServletRequest request) {
-        User user = getUserFromRequest(request);
+            User user) {
         if (user.getCouple() == null) {
             return ResponseEntity.badRequest().build();
         }
@@ -66,27 +81,20 @@ public class ShoppingListController {
     }
 
     @PatchMapping("/items/{id}")
-    public ShoppingListItemDto updateItem(@PathVariable Long id, @RequestBody ShoppingListItemDto dto, HttpServletRequest request) {
-        User user = getUserFromRequest(request);
+    public ResponseEntity<ShoppingListItemDto> updateItem(@PathVariable @Positive Long id, @RequestBody ShoppingListItemDto dto, User user) {
         if (user.getCouple() == null) {
             throw new IllegalStateException("User not in a couple");
         }
-        return shoppingListService.updateItem(id, dto, user.getCouple().getId());
+        ShoppingListItemDto result = shoppingListService.updateItem(id, dto, user.getCouple().getId());
+        return ResponseEntity.ok(result);
     }
 
     @DeleteMapping("/items/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteItem(@PathVariable Long id, HttpServletRequest request) {
-        User user = getUserFromRequest(request);
+    public void deleteItem(@PathVariable @Positive Long id, User user) {
         if (user.getCouple() == null) {
             throw new IllegalStateException("User not in a couple");
         }
         shoppingListService.deleteItem(id, user.getCouple().getId());
-    }
-
-    private User getUserFromRequest(HttpServletRequest request) {
-        Long userId = (Long) request.getAttribute("userId");
-        return userRepository.findById(userId)
-            .orElseThrow(() -> new ResourceNotFoundException("User not found"));
     }
 }
