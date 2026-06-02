@@ -4,12 +4,6 @@ import { tap } from 'rxjs/operators';
 import { ApiService } from './api.service';
 import { MealPlanEntry, CreateMealPlanEntryRequest } from '../models';
 
-import { Injectable } from '@angular/core';
-import { Observable, BehaviorSubject } from 'rxjs';
-import { tap } from 'rxjs/operators';
-import { ApiService } from './api.service';
-import { MealPlanEntry, CreateMealPlanEntryRequest } from '../models';
-
 @Injectable({
   providedIn: 'root'
 })
