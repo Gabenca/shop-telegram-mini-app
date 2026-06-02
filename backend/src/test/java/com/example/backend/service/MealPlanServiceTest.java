@@ -40,9 +40,10 @@ class MealPlanServiceTest {
 
     @Test
     void addMealPlanEntry_shouldReturnDto() {
-        Recipe recipe = Recipe.builder().id(1L).name("Pasta").build();
+        Couple couple = Couple.builder().id(1L).build();
+        Recipe recipe = Recipe.builder().id(1L).name("Pasta").couple(couple).build();
         when(recipeRepository.findById(1L)).thenReturn(Optional.of(recipe));
-        when(coupleRepository.findById(1L)).thenReturn(Optional.of(new Couple()));
+        when(coupleRepository.findById(1L)).thenReturn(Optional.of(couple));
         when(mealPlanEntryRepository.save(any())).thenAnswer(inv -> {
             MealPlanEntry e = inv.getArgument(0);
             e.setId(1L);

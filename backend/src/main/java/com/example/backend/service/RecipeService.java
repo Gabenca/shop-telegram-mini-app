@@ -41,7 +41,7 @@ public class RecipeService {
             List<Ingredient> ingredients = request.getIngredients().stream()
                     .map(i -> Ingredient.builder()
                             .name(i.getName())
-                            .quantity(i.getWeightInGrams())
+                            .quantity(i.getQuantity())
                             .unit(Unit.valueOf(i.getUnit()))
                             .recipe(recipe)
                             .build())
@@ -91,7 +91,7 @@ public class RecipeService {
             List<Ingredient> ingredients = request.getIngredients().stream()
                     .map(i -> Ingredient.builder()
                             .name(i.getName())
-                            .quantity(i.getWeightInGrams())
+                            .quantity(i.getQuantity())
                             .unit(Unit.valueOf(i.getUnit()))
                             .recipe(recipe)
                             .build())
@@ -129,7 +129,7 @@ public class RecipeService {
                     var idto = new com.example.backend.dto.IngredientDto();
                     idto.setId(i.getId());
                     idto.setName(i.getName());
-                    idto.setWeightInGrams(i.getWeightInGrams());
+                    idto.setQuantity(i.getQuantity());
                     idto.setUnit(i.getUnit());
                     return idto;
                 })

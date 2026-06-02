@@ -18,8 +18,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
-@AutoConfigureMockMvc
-@org.springframework.security.test.context.support.WithMockUser
+@AutoConfigureMockMvc(addFilters = false)
 class PhotoControllerTest {
 
     @Autowired

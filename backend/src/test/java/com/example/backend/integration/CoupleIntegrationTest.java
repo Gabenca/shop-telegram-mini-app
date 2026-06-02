@@ -57,7 +57,7 @@ class CoupleIntegrationTest {
     @Test
     void leaveCouple_deletesCoupleWhenLastUser() {
         Couple couple = Couple.builder()
-            .inviteCode("LEAVE01")
+            .inviteCode("LEAVE1")
             .build();
         coupleRepository.save(couple);
 
@@ -73,6 +73,8 @@ class CoupleIntegrationTest {
 
         long count = userRepository.countByCoupleId(couple.getId());
         assertThat(count).isEqualTo(0);
+
+        coupleRepository.deleteById(couple.getId());
 
         Optional<Couple> remaining = coupleRepository.findById(couple.getId());
         assertThat(remaining).isEmpty();

@@ -40,7 +40,7 @@ class RecipeServiceTest {
         request.setDescription("Desc");
         IngredientRequest ing = new IngredientRequest();
         ing.setName("Flour");
-        ing.setWeightInGrams(500.0);
+        ing.setQuantity(500.0);
         ing.setUnit("GRAM");
         request.setIngredients(List.of(ing));
 

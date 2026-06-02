@@ -49,7 +49,7 @@ public class ShoppingListService {
                                     ShoppingListItem item = new ShoppingListItem();
                                     item.setWeekStartDate(weekStart);
                                     item.setIngredientName(list.get(0).getName());
-                                    item.setTotalQuantity(list.stream().mapToDouble(i -> i.getWeightInGrams()).sum());
+                                    item.setTotalQuantity(list.stream().mapToDouble(i -> i.getQuantity()).sum());
                                     item.setUnit(list.get(0).getUnit());
                                     item.setChecked(false);
                                     item.setManual(false);
