@@ -22,9 +22,36 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Logger;
 
+package com.example.backend.telegram;
+
+import com.example.backend.domain.User;
+import com.example.backend.repository.UserRepository;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Component;
+import org.springframework.web.filter.OncePerRequestFilter;
+
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
+import java.io.IOException;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.logging.Logger;
+
 @Component
-@Order(1)
-public class TelegramInitDataFilter implements Filter {
+public class TelegramInitDataFilter extends OncePerRequestFilter {
 
     private static final Logger LOGGER = Logger.getLogger(TelegramInitDataFilter.class.getName());
 
@@ -40,10 +67,14 @@ public class TelegramInitDataFilter implements Filter {
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Override
-    public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain chain)
-            throws IOException, ServletException {
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, jakarta.servlet.FilterChain filterChain)
+            throws ServletException, IOException {
 
-        HttpServletRequest request = (HttpServletRequest) servletRequest;
+        if (botToken == null || botToken.isBlank()) {
+            LOGGER.severe("Telegram bot token is not configured");
+            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Auth configuration error");
+            return;
+        }
 
         if ("dev".equals(activeProfile)) {
             Long devTelegramId = 123456789L;
@@ -58,11 +89,8 @@ public class TelegramInitDataFilter implements Filter {
                     return userRepository.save(newUser);
                 });
 
-            request.setAttribute("telegramId", devTelegramId);
-            request.setAttribute("username", devUsername);
-            request.setAttribute("userId", user.getId());
-
-            chain.doFilter(servletRequest, servletResponse);
+            authenticateUser(request, user);
+            filterChain.doFilter(request, response);
             return;
         }
 
@@ -72,13 +100,13 @@ public class TelegramInitDataFilter implements Filter {
         }
 
         if (initData == null || initData.isEmpty()) {
-            ((HttpServletResponse) servletResponse).sendError(HttpServletResponse.SC_UNAUTHORIZED, "Missing Telegram init data");
+            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Missing Telegram init data");
             return;
         }
 
         try {
             if (!validateInitData(initData)) {
-                ((HttpServletResponse) servletResponse).sendError(HttpServletResponse.SC_UNAUTHORIZED, "Invalid Telegram init data");
+                response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Invalid Telegram init data");
                 return;
             }
 
@@ -86,7 +114,7 @@ public class TelegramInitDataFilter implements Filter {
             String userJson = params.get("user");
 
             if (userJson == null) {
-                ((HttpServletResponse) servletResponse).sendError(HttpServletResponse.SC_UNAUTHORIZED, "Missing user data");
+                response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Missing user data");
                 return;
             }
 
@@ -104,15 +132,26 @@ public class TelegramInitDataFilter implements Filter {
                     return userRepository.save(newUser);
                 });
 
-            request.setAttribute("telegramId", telegramId);
-            request.setAttribute("username", username);
-            request.setAttribute("userId", user.getId());
-
-            chain.doFilter(servletRequest, servletResponse);
+            authenticateUser(request, user);
+            filterChain.doFilter(request, response);
         } catch (Exception e) {
             LOGGER.severe("Failed to validate Telegram init data: " + e.getMessage());
-            ((HttpServletResponse) servletResponse).sendError(HttpServletResponse.SC_UNAUTHORIZED, "Authentication failed");
+            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Authentication failed");
         }
+    }
+
+    private void authenticateUser(HttpServletRequest request, User user) {
+        UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(
+            user.getTelegramId(),
+            null,
+            Collections.singletonList(new SimpleGrantedAuthority("ROLE_USER"))
+        );
+        auth.setDetails(user.getId());
+        SecurityContextHolder.getContext().setAuthentication(auth);
+
+        request.setAttribute("telegramId", user.getTelegramId());
+        request.setAttribute("username", user.getUsername());
+        request.setAttribute("userId", user.getId());
     }
 
     private boolean validateInitData(String initData) throws NoSuchAlgorithmException, InvalidKeyException {
