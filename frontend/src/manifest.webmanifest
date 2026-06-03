@@ -1,0 +1,19 @@
+{
+  "name": "Вкусно вдвоём",
+  "short_name": "Вкусно",
+  "description": "Планировщик питания для пары",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#FDF8F3",
+  "theme_color": "#D4734C",
+  "lang": "ru",
+  "icons": [
+    {
+      "src": "favicon.ico",
+      "sizes": "64x64 32x32 24x24 16x16",
+      "type": "image/x-icon"
+    }
+  ]
+}
