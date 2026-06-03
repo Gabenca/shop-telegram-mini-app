@@ -53,7 +53,7 @@ public class TelegramInitDataFilter extends OncePerRequestFilter {
             return;
         }
 
-        if (environment.matchesProfiles("dev")) {
+        if (environment.matchesProfiles("dev") && !environment.matchesProfiles("prod")) {
             Long devTelegramId = 123456789L;
             String devUsername = "dev_user";
 
