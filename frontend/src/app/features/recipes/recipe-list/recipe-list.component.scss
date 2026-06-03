@@ -3,6 +3,16 @@
   min-height: 100vh;
 }
 
+.skeleton-item {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 12px;
+  background: var(--tg-theme-secondary-bg-color);
+  border-radius: var(--radius-xl);
+  box-shadow: 0 4px 16px var(--warm-shadow);
+}
+
 .header-section {
   display: flex;
   align-items: flex-start;

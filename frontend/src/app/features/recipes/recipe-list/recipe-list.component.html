@@ -8,9 +8,14 @@
   </div>
 
   @if (isLoading()) {
-    <div class="loading-state">
-      <div class="loading-spinner"></div>
-      <p>Загружаем рецепты...</p>
+    <div class="recipe-grid">
+      @for (_ of skeletonPlaceholders; track $index) {
+        <div class="recipe-item skeleton-item">
+          <app-skeleton height="180px" radius="var(--radius-xl)" />
+          <app-skeleton height="1.2em" width="80%" />
+          <app-skeleton height="1em" width="50%" />
+        </div>
+      }
     </div>
   } @else {
     @if (recipes.length > 0) {

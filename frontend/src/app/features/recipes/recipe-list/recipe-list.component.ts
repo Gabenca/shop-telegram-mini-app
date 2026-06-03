@@ -5,12 +5,13 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { RecipeService } from '../../../shared/services/recipe.service';
 import { RecipeCardComponent } from '../../../shared/components/recipe-card/recipe-card.component';
 import { HomeButtonComponent } from '../../../shared/components/home-button/home-button.component';
+import { SkeletonComponent } from '../../../shared/components/skeleton/skeleton.component';
 import { Recipe } from '../../../shared/models';
 
 @Component({
   selector: 'app-recipe-list',
   standalone: true,
-  imports: [CommonModule, RecipeCardComponent, HomeButtonComponent],
+  imports: [CommonModule, RecipeCardComponent, HomeButtonComponent, SkeletonComponent],
   templateUrl: './recipe-list.component.html',
   styleUrl: './recipe-list.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush
@@ -18,6 +19,7 @@ import { Recipe } from '../../../shared/models';
 export class RecipeListComponent implements OnInit {
   recipes: Recipe[] = [];
   isLoading = signal(false);
+  readonly skeletonPlaceholders = Array.from({ length: 4 });
   private destroyRef = inject(DestroyRef);
 
   constructor(

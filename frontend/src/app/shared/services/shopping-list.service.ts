@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
-import { Observable, BehaviorSubject } from 'rxjs';
-import { tap } from 'rxjs/operators';
+import { Observable, BehaviorSubject, EMPTY, throwError } from 'rxjs';
+import { tap, catchError } from 'rxjs/operators';
 import { ApiService } from './api.service';
 import { ShoppingListItem, CreateManualItemRequest } from '../models';
 
@@ -45,14 +45,38 @@ export class ShoppingListService {
   }
 
   toggleItemChecked(id: number): Observable<ShoppingListItem> {
-    return this.api.http.patch<ShoppingListItem>(`${this.api.baseUrl}/shopping-list/items/${id}`, {}).pipe(
+    const current = this.shoppingList$.value;
+    const index = current.findIndex(i => i.id === id);
+    if (index === -1) {
+      return EMPTY;
+    }
+    const previousState = current[index].checked;
+    const newChecked = !previousState;
+
+    const optimistic = current.slice();
+    optimistic[index] = { ...optimistic[index], checked: newChecked };
+    this.shoppingList$.next(optimistic);
+
+    return this.api.http.patch<ShoppingListItem>(
+      `${this.api.baseUrl}/shopping-list/items/${id}`,
+      { checked: newChecked }
+    ).pipe(
       tap(updatedItem => {
-        const current = this.shoppingList$.value;
-        const index = current.findIndex(i => i.id === id);
-        if (index !== -1) {
-          current[index] = updatedItem;
-          this.shoppingList$.next([...current]);
+        const cur = this.shoppingList$.value;
+        const idx = cur.findIndex(i => i.id === id);
+        if (idx !== -1) {
+          cur[idx] = updatedItem;
+          this.shoppingList$.next([...cur]);
         }
+      }),
+      catchError(err => {
+        const cur = this.shoppingList$.value;
+        const idx = cur.findIndex(i => i.id === id);
+        if (idx !== -1) {
+          cur[idx] = { ...cur[idx], checked: previousState };
+          this.shoppingList$.next([...cur]);
+        }
+        return throwError(() => err);
       })
     );
   }
