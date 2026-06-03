@@ -324,3 +324,32 @@ img {
   z-index: 9999;
   animation: grain 8s steps(10) infinite;
 }
+
+/* --- Тёмная тема (Telegram color-scheme + system prefers-color-scheme) --- */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --warm-bg: #1F1B17;
+    --warm-bg-rgb: 31, 27, 23;
+    --warm-card: #2A2520;
+    --warm-text: #F0E8DE;
+    --warm-text-secondary: #B8B0A4;
+    --warm-hint: #8C857B;
+    --warm-border: #3A332C;
+    --warm-shadow: rgba(0, 0, 0, 0.4);
+    --warm-shadow-md: rgba(0, 0, 0, 0.55);
+    --warm-shadow-lg: rgba(0, 0, 0, 0.7);
+    --warm-error-light: #3A2828;
+
+    --tg-theme-bg-color: var(--warm-bg);
+    --tg-theme-secondary-bg-color: var(--warm-card);
+    --tg-theme-text-color: var(--warm-text);
+    --tg-theme-hint-color: var(--warm-hint);
+    --tg-theme-button-color: var(--warm-terracotta-light);
+    --tg-theme-link-color: var(--warm-olive-light);
+  }
+
+  .btn-warm-secondary {
+    color: var(--warm-olive-light);
+    border-color: var(--warm-olive-light);
+  }
+}
