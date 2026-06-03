@@ -5,12 +5,14 @@ import com.example.backend.domain.MealPlanEntry;
 import com.example.backend.domain.ShoppingListItem;
 import com.example.backend.dto.CreateManualItemRequest;
 import com.example.backend.dto.ShoppingListItemDto;
+import com.example.backend.event.ShoppingListRegenerateEvent;
 import com.example.backend.exception.AccessDeniedException;
 import com.example.backend.exception.ResourceNotFoundException;
 import com.example.backend.repository.CoupleRepository;
 import com.example.backend.repository.MealPlanEntryRepository;
 import com.example.backend.repository.ShoppingListItemRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,6 +28,7 @@ public class ShoppingListService {
     private final ShoppingListItemRepository shoppingListItemRepository;
     private final MealPlanEntryRepository mealPlanEntryRepository;
     private final CoupleRepository coupleRepository;
+    private final ApplicationEventPublisher eventPublisher;
 
     @Transactional(readOnly = true)
     public List<ShoppingListItemDto> getShoppingListForWeek(LocalDate weekStart, Long coupleId) {
@@ -35,7 +38,7 @@ public class ShoppingListService {
     }
 
     @Transactional
-    public List<ShoppingListItemDto> regenerateShoppingList(LocalDate weekStart, Long coupleId) {
+    public List<ShoppingListItemDto> regenerateShoppingList(LocalDate weekStart, Long coupleId, Long userId) {
         LocalDate weekEnd = weekStart.plusDays(6);
         List<MealPlanEntry> entries = mealPlanEntryRepository.findByDateBetweenAndCoupleId(weekStart, weekEnd, coupleId);
 
@@ -89,6 +92,9 @@ public class ShoppingListService {
                 .collect(Collectors.toList());
 
         manualItems.addAll(savedItems);
+
+        eventPublisher.publishEvent(new ShoppingListRegenerateEvent(coupleId, userId));
+
         return manualItems.stream()
                 .map(this::mapToDto)
                 .collect(Collectors.toList());
@@ -117,11 +123,11 @@ public class ShoppingListService {
     public ShoppingListItemDto updateItem(Long id, ShoppingListItemDto dto, Long coupleId) {
         ShoppingListItem item = shoppingListItemRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Item not found: " + id));
-        
+
         if (!item.getCouple().getId().equals(coupleId)) {
             throw new AccessDeniedException("Access denied");
         }
-        
+
         item.setChecked(dto.isChecked());
         ShoppingListItem saved = shoppingListItemRepository.save(item);
         return mapToDto(saved);
@@ -131,11 +137,11 @@ public class ShoppingListService {
     public void deleteItem(Long id, Long coupleId) {
         ShoppingListItem item = shoppingListItemRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Item not found: " + id));
-        
+
         if (!item.getCouple().getId().equals(coupleId)) {
             throw new AccessDeniedException("Access denied");
         }
-        
+
         shoppingListItemRepository.deleteById(id);
     }
 

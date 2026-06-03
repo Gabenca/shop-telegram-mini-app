@@ -2,12 +2,14 @@ package com.example.backend.service;
 
 import com.example.backend.domain.*;
 import com.example.backend.dto.*;
+import com.example.backend.event.MealPlanChangedEvent;
 import com.example.backend.exception.AccessDeniedException;
 import com.example.backend.exception.ResourceNotFoundException;
 import com.example.backend.repository.CoupleRepository;
 import com.example.backend.repository.MealPlanEntryRepository;
 import com.example.backend.repository.RecipeRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,6 +24,7 @@ public class MealPlanService {
     private final MealPlanEntryRepository mealPlanEntryRepository;
     private final RecipeRepository recipeRepository;
     private final CoupleRepository coupleRepository;
+    private final ApplicationEventPublisher eventPublisher;
 
     @Transactional(readOnly = true)
     public List<MealPlanEntryDto> getMealPlanForWeek(LocalDate weekStart, Long coupleId) {
@@ -32,11 +35,11 @@ public class MealPlanService {
     }
 
     @Transactional
-    public List<MealPlanEntryDto> addMealPlanEntries(List<CreateMealPlanEntryRequest> requests, Long coupleId) {
+    public List<MealPlanEntryDto> addMealPlanEntries(List<CreateMealPlanEntryRequest> requests, Long coupleId, Long userId) {
         Couple couple = coupleRepository.findById(coupleId)
             .orElseThrow(() -> new ResourceNotFoundException("Couple not found"));
 
-        return requests.stream()
+        List<MealPlanEntryDto> result = requests.stream()
             .map(request -> {
                 MealPlanEntry entry = MealPlanEntry.builder()
                         .date(request.getDate())
@@ -47,19 +50,22 @@ public class MealPlanService {
                 List<MealPlanEntryDish> dishes = request.getDishes().stream()
                     .map(dishRequest -> createDish(dishRequest, entry, coupleId))
                     .collect(Collectors.toList());
-                
+
                 entry.setDishes(dishes);
                 MealPlanEntry saved = mealPlanEntryRepository.save(entry);
                 return mapToDto(saved);
             })
             .collect(Collectors.toList());
+
+        eventPublisher.publishEvent(new MealPlanChangedEvent(coupleId, userId));
+        return result;
     }
 
     @Transactional
-    public MealPlanEntryDto updateMealPlanEntry(Long entryId, CreateMealPlanEntryRequest request, Long coupleId) {
+    public MealPlanEntryDto updateMealPlanEntry(Long entryId, CreateMealPlanEntryRequest request, Long coupleId, Long userId) {
         MealPlanEntry entry = mealPlanEntryRepository.findById(entryId)
             .orElseThrow(() -> new ResourceNotFoundException("Entry not found: " + entryId));
-        
+
         if (!entry.getCouple().getId().equals(coupleId)) {
             throw new AccessDeniedException("Access denied");
         }
@@ -69,34 +75,37 @@ public class MealPlanService {
             .map(dishRequest -> createDish(dishRequest, entry, coupleId))
             .collect(Collectors.toList());
         entry.setDishes(newDishes);
-        
+
         MealPlanEntry saved = mealPlanEntryRepository.save(entry);
+        eventPublisher.publishEvent(new MealPlanChangedEvent(coupleId, userId));
         return mapToDto(saved);
     }
 
     @Transactional
-    public void deleteMealPlanEntry(Long id, Long coupleId) {
+    public void deleteMealPlanEntry(Long id, Long coupleId, Long userId) {
         MealPlanEntry entry = mealPlanEntryRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Meal plan entry not found: " + id));
-        
+
         if (!entry.getCouple().getId().equals(coupleId)) {
             throw new AccessDeniedException("Access denied");
         }
-        
+
         mealPlanEntryRepository.deleteById(id);
+        eventPublisher.publishEvent(new MealPlanChangedEvent(coupleId, userId));
     }
 
     @Transactional
-    public void deleteDish(Long dishId, Long coupleId) {
+    public void deleteDish(Long dishId, Long coupleId, Long userId) {
         MealPlanEntry entry = mealPlanEntryRepository.findByDishesId(dishId)
                 .orElseThrow(() -> new ResourceNotFoundException("Dish not found"));
-        
+
         if (!entry.getCouple().getId().equals(coupleId)) {
             throw new AccessDeniedException("Access denied");
         }
-        
+
         entry.getDishes().removeIf(d -> d.getId().equals(dishId));
         mealPlanEntryRepository.save(entry);
+        eventPublisher.publishEvent(new MealPlanChangedEvent(coupleId, userId));
     }
 
     private MealPlanEntryDish createDish(CreateDishRequest request, MealPlanEntry entry, Long coupleId) {

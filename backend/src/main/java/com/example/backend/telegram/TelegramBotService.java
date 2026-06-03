@@ -95,4 +95,22 @@ public class TelegramBotService {
 
         throw new RuntimeException("Failed to get photo from Telegram");
     }
+
+    public void sendMessage(Long chatId, String text) {
+        if (botToken == null || botToken.isBlank()) {
+            return;
+        }
+
+        String url = "https://api.telegram.org/bot" + botToken + "/sendMessage";
+
+        WebClient webClient = webClientBuilder.build();
+
+        webClient.post()
+            .uri(url)
+            .contentType(MediaType.APPLICATION_JSON)
+            .bodyValue(Map.of("chat_id", chatId, "text", text))
+            .retrieve()
+            .bodyToMono(Map.class)
+            .block();
+    }
 }

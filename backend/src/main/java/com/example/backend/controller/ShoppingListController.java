@@ -44,7 +44,7 @@ public class ShoppingListController {
             return ResponseEntity.badRequest().build();
         }
 
-        List<ShoppingListItemDto> shoppingList = shoppingListService.regenerateShoppingList(weekStart, user.getCouple().getId());
+        List<ShoppingListItemDto> shoppingList = shoppingListService.regenerateShoppingList(weekStart, user.getCouple().getId(), user.getId());
         return ResponseEntity.ok(shoppingList);
     }
 

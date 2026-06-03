@@ -45,7 +45,7 @@ public class MealPlanController {
             return ResponseEntity.badRequest().build();
         }
 
-        MealPlanEntryDto entry = mealPlanService.addMealPlanEntries(List.of(createRequest), user.getCouple().getId()).get(0);
+        MealPlanEntryDto entry = mealPlanService.addMealPlanEntries(List.of(createRequest), user.getCouple().getId(), user.getId()).get(0);
         return ResponseEntity.status(HttpStatus.CREATED).body(entry);
     }
 
@@ -57,7 +57,7 @@ public class MealPlanController {
             return ResponseEntity.badRequest().build();
         }
 
-        List<MealPlanEntryDto> entries = mealPlanService.addMealPlanEntries(createRequest.getEntries(), user.getCouple().getId());
+        List<MealPlanEntryDto> entries = mealPlanService.addMealPlanEntries(createRequest.getEntries(), user.getCouple().getId(), user.getId());
         return ResponseEntity.status(HttpStatus.CREATED).body(entries);
     }
 
@@ -70,7 +70,7 @@ public class MealPlanController {
             return ResponseEntity.badRequest().build();
         }
 
-        MealPlanEntryDto entry = mealPlanService.updateMealPlanEntry(id, updateRequest, user.getCouple().getId());
+        MealPlanEntryDto entry = mealPlanService.updateMealPlanEntry(id, updateRequest, user.getCouple().getId(), user.getId());
         return ResponseEntity.ok(entry);
     }
 
@@ -80,7 +80,7 @@ public class MealPlanController {
         if (user.getCouple() == null) {
             throw new IllegalStateException("User not in a couple");
         }
-        mealPlanService.deleteMealPlanEntry(id, user.getCouple().getId());
+        mealPlanService.deleteMealPlanEntry(id, user.getCouple().getId(), user.getId());
     }
 
     @DeleteMapping("/dishes/{dishId}")
@@ -89,6 +89,6 @@ public class MealPlanController {
         if (user.getCouple() == null) {
             throw new IllegalStateException("User not in a couple");
         }
-        mealPlanService.deleteDish(dishId, user.getCouple().getId());
+        mealPlanService.deleteDish(dishId, user.getCouple().getId(), user.getId());
     }
 }
