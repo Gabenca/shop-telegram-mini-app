@@ -30,7 +30,7 @@ public class MealPlanEntry {
     @EqualsAndHashCode.Exclude
     private Couple couple;
 
-    @OneToMany(mappedBy = "mealPlanEntry", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "mealPlanEntry", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     @Builder.Default
     @ToString.Exclude
     @EqualsAndHashCode.Exclude

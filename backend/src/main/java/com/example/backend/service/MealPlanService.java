@@ -26,7 +26,7 @@ public class MealPlanService {
     @Transactional(readOnly = true)
     public List<MealPlanEntryDto> getMealPlanForWeek(LocalDate weekStart, Long coupleId) {
         LocalDate weekEnd = weekStart.plusDays(6);
-        return mealPlanEntryRepository.findByDateBetweenAndCoupleId(weekStart, weekEnd, coupleId).stream()
+        return mealPlanEntryRepository.findByWeekWithDishes(weekStart, weekEnd, coupleId).stream()
                 .map(this::mapToDto)
                 .collect(Collectors.toList());
     }
