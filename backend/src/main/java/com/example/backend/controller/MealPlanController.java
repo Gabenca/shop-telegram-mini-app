@@ -18,7 +18,7 @@ import java.util.Collections;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/meal-plan")
+@RequestMapping("/api/v1/meal-plan")
 @RequiredArgsConstructor
 @Validated
 public class MealPlanController {

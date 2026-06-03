@@ -17,7 +17,7 @@ import java.util.Collections;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/shopping-list")
+@RequestMapping("/api/v1/shopping-list")
 @RequiredArgsConstructor
 @Validated
 public class ShoppingListController {
