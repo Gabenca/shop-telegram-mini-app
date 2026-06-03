@@ -61,6 +61,16 @@ public class RecipeService {
     }
 
     @Transactional(readOnly = true)
+    public List<RecipeDto> searchRecipes(String query, Long coupleId) {
+        if (query == null || query.isBlank()) {
+            return getAllRecipes(coupleId);
+        }
+        return recipeRepository.searchByNameAndCoupleId(query.trim(), coupleId).stream()
+                .map(this::mapToDto)
+                .collect(Collectors.toList());
+    }
+
+    @Transactional(readOnly = true)
     public RecipeDto getRecipeById(Long id, Long coupleId) {
         Recipe recipe = recipeRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Recipe not found: " + id));

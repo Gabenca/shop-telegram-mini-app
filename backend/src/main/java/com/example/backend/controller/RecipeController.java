@@ -33,6 +33,14 @@ public class RecipeController {
         return ResponseEntity.ok(recipes);
     }
 
+    @GetMapping("/search")
+    public ResponseEntity<List<RecipeDto>> searchRecipes(@RequestParam String q, User user) {
+        if (user.getCouple() == null) {
+            return ResponseEntity.ok(Collections.emptyList());
+        }
+        return ResponseEntity.ok(recipeService.searchRecipes(q, user.getCouple().getId()));
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<RecipeDto> getRecipeById(@PathVariable @Positive Long id, User user) {
         if (user.getCouple() == null) {
