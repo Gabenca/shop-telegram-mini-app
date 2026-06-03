@@ -23,7 +23,10 @@ cd backend
 $env:JAVA_HOME = "C:\Users\max99\.jdks\ms-21.0.11"
 .\gradlew.bat bootRun
 # API: http://localhost:8080
-# H2 console (if enabled): http://localhost:8080/h2-console
+# Swagger UI: http://localhost:8080/swagger-ui.html
+# OpenAPI JSON: http://localhost:8080/v3/api-docs
+# H2 console: http://localhost:8080/h2-console
+# Telegram webhook (when enabled): POST http://localhost:8080/api/v1/telegram/webhook
 ```
 
 ### Frontend only (assumes backend already running)
@@ -90,7 +93,24 @@ $env:JAVA_HOME = "C:\Users\max99\.jdks\ms-21.0.11"
 ```powershell
 cd frontend
 npm run build
-# Produces: dist/ (deploy as static assets, or let SpaController serve from classpath)
+# Produces: dist/frontend/browser/ including ngsw-worker.js, ngsw.json, manifest.webmanifest
+# (When building the multi-stage Dockerfile the frontend dist is bundled into the jar)
+```
+
+### Docker image (multi-stage)
+```powershell
+# From the repo root
+docker build -t shop-telegram-mini:latest .
+docker run --rm -p 8080:8080 `
+  -e SPRING_PROFILES_ACTIVE=prod `
+  -e SPRING_DATASOURCE_URL=jdbc:postgresql://host.docker.internal:5432/recipe_db `
+  -e SPRING_DATASOURCE_USERNAME=postgres `
+  -e SPRING_DATASOURCE_PASSWORD=password `
+  -e TELEGRAM_BOT_TOKEN=<token> `
+  shop-telegram-mini:latest
+# Optional webhook registration:
+#   -e TELEGRAM_WEBHOOK_ENABLED=true `
+#   -e TELEGRAM_WEBHOOK_URL=https://your-host.example/api/v1/telegram/webhook `
 ```
 
 ## Linting / Type-Check

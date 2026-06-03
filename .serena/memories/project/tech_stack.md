@@ -11,19 +11,28 @@
 | DB (dev) | H2 | (via Spring Boot) | In-memory, default profile |
 | DB (prod) | PostgreSQL | 15 | Via `docker-compose.yml` |
 | Auth | Spring Security + custom filter | — | `TelegramInitDataFilter` validates HMAC-SHA256 of init data |
-| Migration | (none yet) | — | Schema via `ddl-auto=update`; consider Flyway when prod-real |
+| Migration | Flyway | 9.x (via Spring Boot) | `db/migration/V1__…` for prod; **disabled in dev** (`spring.flyway.enabled=false`), enabled in prod |
 | Testing | JUnit 5 + Spring Boot Test + Mockito | (via Spring Boot) | `@WebMvcTest` for controllers, plain unit tests for services |
 | Lombok | Yes | latest | `@RequiredArgsConstructor`, `@Data` etc. used throughout |
 
 ### Backend Dependencies (declared in `build.gradle.kts`)
 - `spring-boot-starter-web`
+- `spring-boot-starter-webflux` (Telegram Bot API client via `WebClient`)
 - `spring-boot-starter-data-jpa`
 - `spring-boot-starter-security`
 - `spring-boot-starter-validation`
-- `spring-boot-devtools`
+- `spring-boot-starter-actuator` (`/actuator/health` only)
+- `spring-boot-starter-aop` (for `@CoupleScoped` aspect)
+- `org.springdoc:springdoc-openapi-starter-webmvc-ui:2.6.0` (Swagger UI at `/swagger-ui.html`)
+- `org.flywaydb:flyway-core` + `org.flywaydb:flyway-database-postgresql` (prod only; dev uses `ddl-auto=update`)
 - `postgresql` (runtime)
 - `com.h2database:h2` (runtime)
 - `org.projectlombok:lombok`
+
+### API Versioning
+- All endpoints live under `/api/v1/...` (recipe/meal-plan/shopping-list/couple/photo/telegram)
+- `environment.apiUrl = '/api/v1'` on both dev and prod fronts
+- `application.yml` does NOT prefix the servlet path; the prefix lives in the `@RequestMapping` of each controller
 
 ## Frontend (`frontend/`)
 
@@ -32,11 +41,12 @@
 | Framework | Angular | 18.2 | Standalone components, no NgModules |
 | Language | TypeScript | 5.5 | Strict mode |
 | Styling | SCSS | — | Per-component `.scss` files |
-| Telegram | `@twa-dev/sdk` | 8.0.2 | `TelegramWebapp` injected in core services |
+| Telegram | `@twa-dev/sdk` + `@twa-dev/types` | 8.0.2 | SDK at runtime, types in components |
 | Routing | Angular Router | (via Angular) | Routes in `app.routes.ts` |
 | HTTP | `HttpClient` | (via Angular) | `telegram-init-data.interceptor.ts` adds `X-Telegram-Init-Data` header |
 | State | RxJS BehaviorSubjects in services | — | No NgRx |
 | Testing | Jasmine + Karma (default) | (via Angular CLI) | `app.spec.ts` present |
+| PWA | `@angular/service-worker` | ^18.2.0 | `ngsw-config.json` + `manifest.webmanifest`; service worker disabled in dev |
 
 ### Frontend Structure (high-level)
 - `core/` — singletons: guards, interceptors, services that wrap `@twa-dev/sdk`
@@ -47,7 +57,8 @@
 
 ## DevOps
 
-- **Docker Compose** — only the PostgreSQL service. No backend/frontend images.
+- **Dockerfile** — multi-stage at the repo root: Node 20 → build Angular into `dist/`, then `jdk-21` copies the jar from a Gradle build stage, finally `jre-21` runs the jar. Bundle everything (frontend static + backend jar) into a single image. `Dockerfile`-first deploy; `docker-compose.yml` is still just for the dev Postgres.
+- **Docker Compose** — only the PostgreSQL service. No backend/frontend images in compose (the multi-stage Dockerfile replaces the need for compose-deployed backend).
 - **Ngrok** — required for HTTPS tunneling during local Telegram Mini App testing (Telegram requires HTTPS).
 - **Scripts** — `scripts/start-with-https.ps1` automates backend + ngrok; `scripts/start-frontend-https.ps1` does the same for frontend.
 
