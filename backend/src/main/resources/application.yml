@@ -50,3 +50,6 @@ spring:
 
 telegram:
   bot-token: ${TELEGRAM_BOT_TOKEN:}
+  webhook:
+    enabled: ${TELEGRAM_WEBHOOK_ENABLED:false}
+    url: ${TELEGRAM_WEBHOOK_URL:}
