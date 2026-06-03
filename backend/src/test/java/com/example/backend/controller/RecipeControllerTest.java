@@ -45,7 +45,7 @@ class RecipeControllerTest {
         when(userRepository.findById(1L)).thenReturn(Optional.of(user));
         when(recipeService.getAllRecipes(any())).thenReturn(List.of(new RecipeDto()));
 
-        mockMvc.perform(get("/api/recipes").requestAttr("userId", 1L))
+        mockMvc.perform(get("/api/v1/recipes").requestAttr("userId", 1L))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$").isArray());
     }
@@ -63,7 +63,7 @@ class RecipeControllerTest {
         when(userRepository.findById(1L)).thenReturn(Optional.of(user));
         when(recipeService.createRecipe(any(), any())).thenReturn(dto);
 
-        mockMvc.perform(post("/api/recipes")
+        mockMvc.perform(post("/api/v1/recipes")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request))
                         .requestAttr("userId", 1L))

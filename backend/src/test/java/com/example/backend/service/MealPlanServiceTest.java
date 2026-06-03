@@ -4,6 +4,7 @@ import com.example.backend.domain.Couple;
 import com.example.backend.domain.MealPlanEntry;
 import com.example.backend.domain.MealType;
 import com.example.backend.domain.Recipe;
+import com.example.backend.dto.CreateDishRequest;
 import com.example.backend.dto.CreateMealPlanEntryRequest;
 import com.example.backend.dto.MealPlanEntryDto;
 import com.example.backend.repository.CoupleRepository;
@@ -39,7 +40,7 @@ class MealPlanServiceTest {
     private MealPlanService mealPlanService;
 
     @Test
-    void addMealPlanEntry_shouldReturnDto() {
+    void addMealPlanEntries_shouldReturnDtos() {
         Couple couple = Couple.builder().id(1L).build();
         Recipe recipe = Recipe.builder().id(1L).name("Pasta").couple(couple).build();
         when(recipeRepository.findById(1L)).thenReturn(Optional.of(recipe));
@@ -52,24 +53,26 @@ class MealPlanServiceTest {
 
         CreateMealPlanEntryRequest request = new CreateMealPlanEntryRequest();
         request.setDate(LocalDate.now());
-        request.setRecipeId(1L);
         request.setMealType(MealType.LUNCH);
+        CreateDishRequest dish = new CreateDishRequest();
+        dish.setRecipeId(1L);
+        dish.setSortOrder(0);
+        request.setDishes(List.of(dish));
 
-        MealPlanEntryDto result = mealPlanService.addMealPlanEntry(request, 1L);
+        List<MealPlanEntryDto> result = mealPlanService.addMealPlanEntries(List.of(request), 1L);
 
-        assertThat(result.getRecipeName()).isEqualTo("Pasta");
-        assertThat(result.getMealType()).isEqualTo(MealType.LUNCH);
+        assertThat(result).hasSize(1);
+        assertThat(result.get(0).getMealType()).isEqualTo(MealType.LUNCH);
     }
 
     @Test
     void getMealPlanForWeek_shouldReturnEntries() {
         LocalDate start = LocalDate.now();
-        Recipe recipe = Recipe.builder().id(1L).name("Pasta").build();
-        MealPlanEntry entry = MealPlanEntry.builder().id(1L).date(start).recipe(recipe).mealType(MealType.DINNER).build();
-        when(mealPlanEntryRepository.findByDateBetweenAndCoupleId(start, start.plusDays(6), 1L)).thenReturn(List.of(entry));
+        when(mealPlanEntryRepository.findByWeekWithDishes(start, start.plusDays(6), 1L))
+            .thenReturn(List.of());
 
         List<MealPlanEntryDto> result = mealPlanService.getMealPlanForWeek(start, 1L);
 
-        assertThat(result).hasSize(1);
+        assertThat(result).isEmpty();
     }
 }

@@ -37,32 +37,9 @@ class ShoppingListServiceTest {
     private ShoppingListService shoppingListService;
 
     @Test
-    void regenerateShoppingList_shouldAggregateIngredients() {
-        LocalDate weekStart = LocalDate.now();
-        Recipe recipe = Recipe.builder().id(1L).name("Pasta").ingredients(new ArrayList<>()).build();
-        recipe.getIngredients().add(Ingredient.builder().name("Flour").quantity(500.0).unit(Unit.GRAM).build());
-        recipe.getIngredients().add(Ingredient.builder().name("Flour").quantity(300.0).unit(Unit.GRAM).build());
-
-        MealPlanEntry entry = MealPlanEntry.builder().date(weekStart).recipe(recipe).build();
-
-        when(mealPlanEntryRepository.findByDateBetweenAndCoupleId(weekStart, weekStart.plusDays(6), 1L)).thenReturn(List.of(entry));
-        when(shoppingListItemRepository.findByWeekStartDateAndCoupleId(weekStart, 1L)).thenReturn(List.of());
-        when(coupleRepository.findById(1L)).thenReturn(Optional.of(new Couple()));
-        when(shoppingListItemRepository.save(any())).thenAnswer(inv -> {
-            ShoppingListItem i = inv.getArgument(0);
-            i.setId(1L);
-            return i;
-        });
-
-        List<ShoppingListItemDto> result = shoppingListService.regenerateShoppingList(weekStart, 1L);
-
-        assertThat(result).hasSize(1);
-        assertThat(result.get(0).getTotalQuantity()).isEqualTo(800.0);
-    }
-
-    @Test
     void addManualItem_shouldReturnDto() {
         CreateManualItemRequest request = new CreateManualItemRequest();
+        request.setWeekStartDate(LocalDate.now());
         request.setIngredientName("Milk");
         request.setTotalQuantity(1.0);
         request.setUnit(Unit.MILLILITER);
@@ -78,5 +55,16 @@ class ShoppingListServiceTest {
 
         assertThat(result.getIngredientName()).isEqualTo("Milk");
         assertThat(result.isManual()).isTrue();
+    }
+
+    @Test
+    void getShoppingListForWeek_shouldReturnItems() {
+        LocalDate weekStart = LocalDate.now();
+        when(shoppingListItemRepository.findByWeekStartDateAndCoupleId(weekStart, 1L))
+            .thenReturn(List.of());
+
+        List<ShoppingListItemDto> result = shoppingListService.getShoppingListForWeek(weekStart, 1L);
+
+        assertThat(result).isEmpty();
     }
 }

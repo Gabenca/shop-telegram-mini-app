@@ -41,7 +41,7 @@ class MealPlanControllerTest {
         when(mealPlanService.getMealPlanForWeek(any(), any()))
                 .thenReturn(List.of(new MealPlanEntryDto()));
 
-        mockMvc.perform(get("/api/meal-plan")
+        mockMvc.perform(get("/api/v1/meal-plan")
                 .param("weekStart", "2026-06-01")
                 .requestAttr("userId", 1L))
                 .andExpect(status().isOk())

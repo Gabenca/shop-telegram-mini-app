@@ -41,7 +41,7 @@ class ShoppingListControllerTest {
         when(shoppingListService.getShoppingListForWeek(any(), any()))
                 .thenReturn(List.of(new ShoppingListItemDto()));
 
-        mockMvc.perform(get("/api/shopping-list")
+        mockMvc.perform(get("/api/v1/shopping-list")
                 .param("weekStart", "2026-06-01")
                 .requestAttr("userId", 1L))
                 .andExpect(status().isOk())

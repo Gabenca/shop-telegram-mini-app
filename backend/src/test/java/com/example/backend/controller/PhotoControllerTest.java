@@ -42,7 +42,7 @@ class PhotoControllerTest {
 
         when(telegramBotService.uploadPhoto(any(), any())).thenReturn(response);
 
-        mockMvc.perform(multipart("/api/recipes/upload-photo")
+        mockMvc.perform(multipart("/api/v1/recipes/upload-photo")
                 .file(file)
                 .requestAttr("telegramId", 123456789L))
             .andExpect(status().isOk())
