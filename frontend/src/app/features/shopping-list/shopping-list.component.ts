@@ -78,6 +78,7 @@ export class ShoppingListComponent implements OnInit, OnDestroy {
   }
 
   previousWeek() {
+    this.telegramService.hapticFeedback('light');
     const prevWeek = new Date(this.weekStart());
     prevWeek.setDate(this.weekStart().getDate() - 7);
     this.weekStart.set(getMonday(prevWeek));
@@ -85,6 +86,7 @@ export class ShoppingListComponent implements OnInit, OnDestroy {
   }
 
   nextWeek() {
+    this.telegramService.hapticFeedback('light');
     const nextWeek = new Date(this.weekStart());
     nextWeek.setDate(this.weekStart().getDate() + 7);
     this.weekStart.set(getMonday(nextWeek));
@@ -101,6 +103,7 @@ export class ShoppingListComponent implements OnInit, OnDestroy {
   }
 
   openAddModal() {
+    this.telegramService.hapticFeedback('light');
     this.showAddModal = true;
     this.newItemName = '';
     this.newItemQuantity = 0;
@@ -108,6 +111,7 @@ export class ShoppingListComponent implements OnInit, OnDestroy {
   }
 
   closeAddModal() {
+    this.telegramService.hapticFeedback('light');
     this.showAddModal = false;
   }
 
@@ -129,6 +133,7 @@ export class ShoppingListComponent implements OnInit, OnDestroy {
   }
 
   regenerateList() {
+    this.telegramService.hapticFeedback('medium');
     this.isLoading.set(true);
     const weekStartStr = formatDate(this.weekStart());
     this.shoppingListService.regenerateShoppingList(weekStartStr).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({

@@ -135,12 +135,14 @@ export class MealPlanComponent implements OnInit, OnDestroy {
   }
 
   previousWeek() {
+    this.telegramService.hapticFeedback('light');
     const prevWeek = new Date(this.weekStart());
     prevWeek.setDate(this.weekStart().getDate() - 7);
     this.setWeekStart(prevWeek);
   }
 
   nextWeek() {
+    this.telegramService.hapticFeedback('light');
     const nextWeek = new Date(this.weekStart());
     nextWeek.setDate(this.weekStart().getDate() + 7);
     this.setWeekStart(nextWeek);
@@ -159,6 +161,7 @@ export class MealPlanComponent implements OnInit, OnDestroy {
   }
 
   openAddEntryModal(date: string, mealType: string) {
+    this.telegramService.hapticFeedback('light');
     this.editingEntry = null;
     this.modalDishes = [];
     this.modalDays = [false, false, false, false, false, false, false];
@@ -184,6 +187,11 @@ export class MealPlanComponent implements OnInit, OnDestroy {
   }
 
   openEditEntryModal(entry: MealPlanEntry) {
+    this.telegramService.hapticFeedback('light');
+    this.openEditEntryModalInternal(entry);
+  }
+
+  private openEditEntryModalInternal(entry: MealPlanEntry) {
     this.editingEntry = entry;
     this.modalDishes = entry.dishes.map(d => ({
       recipeId: d.recipeId,
@@ -199,6 +207,7 @@ export class MealPlanComponent implements OnInit, OnDestroy {
   }
 
   closeRecipeModal() {
+    this.telegramService.hapticFeedback('light');
     this.showRecipeModal = false;
     this.modalStep = 'recipe';
     this.selectedRecipe = null;
@@ -208,20 +217,24 @@ export class MealPlanComponent implements OnInit, OnDestroy {
   }
 
   selectRecipe(recipe: Recipe) {
+    this.telegramService.hapticFeedback('light');
     this.selectedRecipe = recipe;
   }
 
   backToRecipeStep() {
+    this.telegramService.hapticFeedback('light');
     this.modalStep = 'recipe';
     this.selectedRecipe = null;
   }
 
   toggleManualMode() {
+    this.telegramService.hapticFeedback('light');
     this.isManualMode = !this.isManualMode;
   }
 
   addCurrentRecipeToDishes() {
     if (!this.selectedRecipe) return;
+    this.telegramService.hapticFeedback('light');
     this.modalDishes.push({
       recipeId: this.selectedRecipe.id,
       recipeName: this.selectedRecipe.name
@@ -232,6 +245,7 @@ export class MealPlanComponent implements OnInit, OnDestroy {
   addManualDish() {
     const name = this.newManualName.trim();
     if (!name) return;
+    this.telegramService.hapticFeedback('light');
     this.modalDishes.push({
       manualName: name,
       manualQuantity: this.newManualQuantity,
@@ -244,6 +258,7 @@ export class MealPlanComponent implements OnInit, OnDestroy {
   }
 
   removeDishFromModal(index: number) {
+    this.telegramService.hapticFeedback('light');
     this.modalDishes.splice(index, 1);
   }
 
@@ -356,6 +371,7 @@ export class MealPlanComponent implements OnInit, OnDestroy {
   }
 
   generateShoppingList() {
+    this.telegramService.hapticFeedback('medium');
     const weekStartStr = formatDate(this.weekStart());
     this.shoppingListService.regenerateShoppingList(weekStartStr).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: () => {
