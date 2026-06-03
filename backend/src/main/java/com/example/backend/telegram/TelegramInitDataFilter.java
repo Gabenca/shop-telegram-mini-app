@@ -8,6 +8,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.env.Environment;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -34,8 +35,8 @@ public class TelegramInitDataFilter extends OncePerRequestFilter {
     @Value("${telegram.bot-token:}")
     private String botToken;
 
-    @Value("${spring.profiles.active:}")
-    private String activeProfile;
+    @Autowired
+    private Environment environment;
 
     @Autowired
     private UserRepository userRepository;
@@ -52,13 +53,7 @@ public class TelegramInitDataFilter extends OncePerRequestFilter {
             return;
         }
 
-        if (botToken == null || botToken.isBlank()) {
-            LOGGER.severe("Telegram bot token is not configured");
-            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Auth configuration error");
-            return;
-        }
-
-        if ("dev".equals(activeProfile)) {
+        if (environment.matchesProfiles("dev")) {
             Long devTelegramId = 123456789L;
             String devUsername = "dev_user";
 
@@ -73,6 +68,12 @@ public class TelegramInitDataFilter extends OncePerRequestFilter {
 
             authenticateUser(request, user);
             filterChain.doFilter(request, response);
+            return;
+        }
+
+        if (botToken == null || botToken.isBlank()) {
+            LOGGER.severe("Telegram bot token is not configured");
+            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Auth configuration error");
             return;
         }
 

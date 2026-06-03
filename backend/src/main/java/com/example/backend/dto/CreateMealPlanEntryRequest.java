@@ -5,6 +5,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @Data
 public class CreateMealPlanEntryRequest {
@@ -13,8 +14,8 @@ public class CreateMealPlanEntryRequest {
     private LocalDate date;
 
     @NotNull
-    private Long recipeId;
+    private MealType mealType;
 
     @NotNull
-    private MealType mealType;
+    private List<CreateDishRequest> dishes;
 }

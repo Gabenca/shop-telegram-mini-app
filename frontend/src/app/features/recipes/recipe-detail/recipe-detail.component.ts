@@ -1,22 +1,28 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject, DestroyRef, signal, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { RecipeService } from '../../../shared/services/recipe.service';
 import { MealPlanService } from '../../../shared/services/meal-plan.service';
 import { TelegramService } from '../../../core/services/telegram.service';
+import { HomeButtonComponent } from '../../../shared/components/home-button/home-button.component';
 import { ModalComponent } from '../../../shared/components/modal/modal.component';
-import { Recipe, MealPlanEntry } from '../../../shared/models';
+import { Recipe } from '../../../shared/models';
+import { formatDate, getMonday } from '../../../shared/utils/date.utils';
+import { UnitPipe } from '../../../shared/pipes/unit.pipe';
 
 @Component({
   selector: 'app-recipe-detail',
   standalone: true,
-  imports: [CommonModule, FormsModule, ModalComponent],
+  imports: [CommonModule, FormsModule, HomeButtonComponent, ModalComponent, UnitPipe],
   templateUrl: './recipe-detail.component.html',
-  styleUrl: './recipe-detail.component.scss'
+  styleUrl: './recipe-detail.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class RecipeDetailComponent implements OnInit, OnDestroy {
-  recipe: Recipe | null = null;
+  recipe = signal<Recipe | null>(null);
+  isLoading = signal(true);
   activeTab: 'ingredients' | 'instructions' = 'ingredients';
   showAddToPlanModal = false;
 
@@ -31,6 +37,8 @@ export class RecipeDetailComponent implements OnInit, OnDestroy {
     { value: 'DINNER' as const, label: 'Ужин' }
   ];
 
+  private destroyRef = inject(DestroyRef);
+
   constructor(
     private route: ActivatedRoute,
     private router: Router,
@@ -41,9 +49,15 @@ export class RecipeDetailComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     const id = Number(this.route.snapshot.paramMap.get('id'));
-    this.recipeService.getRecipe(id).subscribe({
+    this.recipeService.getRecipe(id).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (recipe) => {
-        this.recipe = recipe;
+        this.recipe.set(recipe);
+        this.isLoading.set(false);
+      },
+      error: (err) => {
+        console.error('Failed to load recipe', err);
+        this.isLoading.set(false);
+        this.telegramService.showPopup('Ошибка', 'Не удалось загрузить рецепт');
       }
     });
 
@@ -61,16 +75,24 @@ export class RecipeDetailComponent implements OnInit, OnDestroy {
   }
 
   editRecipe() {
-    if (this.recipe) {
-      this.router.navigate(['/recipes', this.recipe.id, 'edit']);
+    const r = this.recipe();
+    if (r) {
+      this.router.navigate(['/recipes', r.id, 'edit']);
     }
   }
 
-  deleteRecipe() {
-    if (this.recipe && confirm('Удалить рецепт?')) {
-      this.recipeService.deleteRecipe(this.recipe.id).subscribe({
+  async deleteRecipe() {
+    const r = this.recipe();
+    if (!r) return;
+    const confirmed = await this.telegramService.showConfirm('Подтверждение', 'Удалить рецепт?');
+    if (confirmed) {
+      this.recipeService.deleteRecipe(r.id).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
         next: () => {
           this.router.navigate(['/recipes']);
+        },
+        error: (err) => {
+          console.error('Failed to delete recipe', err);
+          this.telegramService.showPopup('Ошибка', 'Не удалось удалить рецепт');
         }
       });
     }
@@ -87,24 +109,27 @@ export class RecipeDetailComponent implements OnInit, OnDestroy {
   }
 
   addToPlan() {
-    if (!this.recipe) return;
+    const r = this.recipe();
+    if (!r) return;
 
     const today = new Date();
-    const dayOfWeek = today.getDay();
-    const monday = new Date(today);
-    monday.setDate(today.getDate() - (dayOfWeek === 0 ? 6 : dayOfWeek - 1));
+    const monday = getMonday(today);
 
     this.selectedDays.forEach((selected, index) => {
       if (selected) {
         const date = new Date(monday);
         date.setDate(monday.getDate() + index);
-        const dateStr = date.toISOString().split('T')[0];
+        const dateStr = formatDate(date);
 
         this.mealPlanService.addMealPlanEntry({
           date: dateStr,
-          recipeId: this.recipe!.id,
-          mealType: this.selectedMealType
-        }).subscribe();
+          mealType: this.selectedMealType,
+          dishes: [{ recipeId: r.id, sortOrder: 0 }]
+        }).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+          error: (err) => {
+            console.error('Failed to add meal plan entry', err);
+          }
+        });
       }
     });
 

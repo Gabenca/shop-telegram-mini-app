@@ -1,6 +1,7 @@
 package com.example.backend.controller;
 
 import com.example.backend.domain.User;
+import com.example.backend.dto.CreateMealPlanEntriesRequest;
 import com.example.backend.dto.CreateMealPlanEntryRequest;
 import com.example.backend.dto.MealPlanEntryDto;
 import com.example.backend.service.MealPlanService;
@@ -44,8 +45,33 @@ public class MealPlanController {
             return ResponseEntity.badRequest().build();
         }
 
-        MealPlanEntryDto entry = mealPlanService.addMealPlanEntry(createRequest, user.getCouple().getId());
+        MealPlanEntryDto entry = mealPlanService.addMealPlanEntries(List.of(createRequest), user.getCouple().getId()).get(0);
         return ResponseEntity.status(HttpStatus.CREATED).body(entry);
+    }
+
+    @PostMapping("/batch")
+    public ResponseEntity<List<MealPlanEntryDto>> addMealPlanEntries(
+            @Valid @RequestBody CreateMealPlanEntriesRequest createRequest,
+            User user) {
+        if (user.getCouple() == null) {
+            return ResponseEntity.badRequest().build();
+        }
+
+        List<MealPlanEntryDto> entries = mealPlanService.addMealPlanEntries(createRequest.getEntries(), user.getCouple().getId());
+        return ResponseEntity.status(HttpStatus.CREATED).body(entries);
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<MealPlanEntryDto> updateMealPlanEntry(
+            @PathVariable @Positive Long id,
+            @Valid @RequestBody CreateMealPlanEntryRequest updateRequest,
+            User user) {
+        if (user.getCouple() == null) {
+            return ResponseEntity.badRequest().build();
+        }
+
+        MealPlanEntryDto entry = mealPlanService.updateMealPlanEntry(id, updateRequest, user.getCouple().getId());
+        return ResponseEntity.ok(entry);
     }
 
     @DeleteMapping("/{id}")
@@ -55,5 +81,14 @@ public class MealPlanController {
             throw new IllegalStateException("User not in a couple");
         }
         mealPlanService.deleteMealPlanEntry(id, user.getCouple().getId());
+    }
+
+    @DeleteMapping("/dishes/{dishId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteDish(@PathVariable @Positive Long dishId, User user) {
+        if (user.getCouple() == null) {
+            throw new IllegalStateException("User not in a couple");
+        }
+        mealPlanService.deleteDish(dishId, user.getCouple().getId());
     }
 }

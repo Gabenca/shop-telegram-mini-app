@@ -1,27 +1,37 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject, DestroyRef, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { FormBuilder, FormGroup, FormArray, Validators, ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { trigger, transition, style, animate } from '@angular/animations';
 import { RecipeService } from '../../../shared/services/recipe.service';
 import { TelegramService } from '../../../core/services/telegram.service';
-import { Recipe, IngredientRequest } from '../../../shared/models';
+import { HomeButtonComponent } from '../../../shared/components/home-button/home-button.component';
+import { Recipe } from '../../../shared/models';
 
 @Component({
   selector: 'app-recipe-form',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, ReactiveFormsModule, HomeButtonComponent],
   templateUrl: './recipe-form.component.html',
-  styleUrl: './recipe-form.component.scss'
+  styleUrl: './recipe-form.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  animations: [
+    trigger('slideDown', [
+      transition(':enter', [
+        style({ opacity: 0, maxHeight: 0, transform: 'translateY(-10px)' }),
+        animate('300ms cubic-bezier(0.16, 1, 0.3, 1)', style({ opacity: 1, maxHeight: '100px', transform: 'translateY(0)' }))
+      ]),
+      transition(':leave', [
+        animate('200ms ease', style({ opacity: 0, maxHeight: 0, transform: 'translateY(-10px)' }))
+      ])
+    ])
+  ]
 })
 export class RecipeFormComponent implements OnInit, OnDestroy {
   isEditMode = false;
   recipeId: number | null = null;
-
-  name = '';
-  description = '';
-  photoUrl = '';
-  instructions = '';
-  ingredients: IngredientRequest[] = [];
+  recipeForm!: FormGroup;
 
   units = [
     { value: 'GRAM' as const, label: 'г' },
@@ -29,29 +39,52 @@ export class RecipeFormComponent implements OnInit, OnDestroy {
     { value: 'PIECE' as const, label: 'шт' }
   ];
 
+  private destroyRef = inject(DestroyRef);
+
   constructor(
     private route: ActivatedRoute,
     private router: Router,
     private recipeService: RecipeService,
-    private telegramService: TelegramService
+    private telegramService: TelegramService,
+    private fb: FormBuilder
   ) {}
 
+  get ingredients(): FormArray {
+    return this.recipeForm.get('ingredients') as FormArray;
+  }
+
   ngOnInit() {
+    this.recipeForm = this.fb.group({
+      name: ['', Validators.required],
+      description: [''],
+      photoUrl: [''],
+      instructions: ['', Validators.required],
+      ingredients: this.fb.array([])
+    });
+
     const id = this.route.snapshot.paramMap.get('id');
     if (id) {
       this.isEditMode = true;
       this.recipeId = Number(id);
-      this.recipeService.getRecipe(this.recipeId).subscribe({
+      this.recipeService.getRecipe(this.recipeId).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
         next: (recipe) => {
-          this.name = recipe.name;
-          this.description = recipe.description;
-          this.photoUrl = recipe.photoUrl;
-          this.instructions = recipe.instructions;
-          this.ingredients = recipe.ingredients.map(i => ({
-            name: i.name,
-            quantity: i.quantity,
-            unit: i.unit
-          }));
+          this.recipeForm.patchValue({
+            name: recipe.name,
+            description: recipe.description,
+            photoUrl: recipe.photoUrl,
+            instructions: recipe.instructions
+          });
+          recipe.ingredients.forEach(i => {
+            this.ingredients.push(this.fb.group({
+              name: [i.name, Validators.required],
+              quantity: [i.quantity, [Validators.required, Validators.min(0)]],
+              unit: [i.unit]
+            }));
+          });
+        },
+        error: (err) => {
+          console.error('Failed to load recipe', err);
+          this.telegramService.showPopup('Ошибка', 'Не удалось загрузить рецепт');
         }
       });
     }
@@ -71,23 +104,27 @@ export class RecipeFormComponent implements OnInit, OnDestroy {
   }
 
   addIngredient() {
-    this.ingredients.push({
-      name: '',
-      quantity: 0,
-      unit: 'GRAM'
-    });
+    this.ingredients.push(this.fb.group({
+      name: ['', Validators.required],
+      quantity: [0, [Validators.required, Validators.min(0)]],
+      unit: ['GRAM']
+    }));
   }
 
   removeIngredient(index: number) {
-    this.ingredients.splice(index, 1);
+    this.ingredients.removeAt(index);
   }
 
   addPhoto() {
     this.telegramService.openGallery((photo) => {
       const file = this.dataURLtoFile(photo, 'photo.jpg');
-      this.recipeService.uploadPhoto(file).subscribe({
+      this.recipeService.uploadPhoto(file).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
         next: (response) => {
-          this.photoUrl = response.fileId;
+          this.recipeForm.patchValue({ photoUrl: response.fileId });
+        },
+        error: (err) => {
+          console.error('Failed to upload photo', err);
+          this.telegramService.showPopup('Ошибка', 'Не удалось загрузить фото');
         }
       });
     });
@@ -105,25 +142,40 @@ export class RecipeFormComponent implements OnInit, OnDestroy {
     return new File([u8arr], filename, { type: mime });
   }
 
+  goBack() {
+    if (this.isEditMode && this.recipeId) {
+      this.router.navigate(['/recipes', this.recipeId]);
+    } else {
+      this.router.navigate(['/recipes']);
+    }
+  }
+
   saveRecipe() {
-    const request = {
-      name: this.name,
-      description: this.description,
-      photoUrl: this.photoUrl,
-      instructions: this.instructions,
-      ingredients: this.ingredients
-    };
+    if (this.recipeForm.invalid) {
+      this.recipeForm.markAllAsTouched();
+      return;
+    }
+
+    const request = this.recipeForm.value;
 
     if (this.isEditMode && this.recipeId) {
-      this.recipeService.updateRecipe(this.recipeId, request).subscribe({
+      this.recipeService.updateRecipe(this.recipeId, request).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
         next: () => {
-          this.router.navigate(['/recipes', this.recipeId]);
+          this.router.navigate(['/']);
+        },
+        error: (err) => {
+          console.error('Failed to update recipe', err);
+          this.telegramService.showPopup('Ошибка', 'Не удалось обновить рецепт');
         }
       });
     } else {
-      this.recipeService.createRecipe(request).subscribe({
+      this.recipeService.createRecipe(request).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
         next: (recipe) => {
-          this.router.navigate(['/recipes', recipe.id]);
+          this.router.navigate(['/']);
+        },
+        error: (err) => {
+          console.error('Failed to create recipe', err);
+          this.telegramService.showPopup('Ошибка', 'Не удалось создать рецепт');
         }
       });
     }

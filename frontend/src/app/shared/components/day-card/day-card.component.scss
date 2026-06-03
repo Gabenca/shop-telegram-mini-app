@@ -1,15 +1,33 @@
 .day-card {
-  background: var(--tg-theme-secondary-bg-color, #f0f0f0);
-  border-radius: 12px;
-  padding: 16px;
-  margin-bottom: 12px;
+  background: var(--tg-theme-secondary-bg-color);
+  border-radius: var(--radius-xl);
+  padding: 20px;
+  margin-bottom: 16px;
+  box-shadow: 0 4px 16px var(--warm-shadow);
+  animation: fadeInUp 0.5s var(--ease-out-expo) both;
 }
 
 .day-header {
-  font-size: 16px;
-  font-weight: bold;
-  margin-bottom: 12px;
-  color: var(--tg-theme-text-color, #000);
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--warm-border);
+}
+
+.day-name {
+  font-family: var(--font-display);
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--warm-deep-green);
+}
+
+.day-date {
+  font-family: var(--font-body);
+  font-size: 14px;
+  color: var(--tg-theme-hint-color);
+  font-weight: 600;
 }
 
 .meal-slots {
@@ -21,35 +39,151 @@
 .meal-slot {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 8px;
-  background: var(--tg-theme-bg-color, #fff);
-  border-radius: 8px;
+  gap: 12px;
+  padding: 12px 14px;
+  background: var(--tg-theme-bg-color);
+  border-radius: var(--radius-md);
   cursor: pointer;
-  transition: opacity 0.2s;
+  transition: all 0.25s var(--ease-smooth);
+  border: 1px solid transparent;
+
+  &:hover {
+    background: rgba(212, 115, 76, 0.08);
+    border-color: rgba(212, 115, 76, 0.2);
+    transform: translateX(4px);
+  }
 
   &:active {
-    opacity: 0.7;
+    transform: scale(0.98);
   }
 }
 
 .meal-icon {
-  font-size: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: rgba(122, 139, 110, 0.12);
+  color: var(--warm-olive);
+  flex-shrink: 0;
+}
+
+.meal-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
 }
 
 .meal-label {
   font-size: 12px;
-  color: var(--tg-theme-hint-color, #888);
-  min-width: 70px;
+  font-weight: 600;
+  color: var(--tg-theme-hint-color);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 .meal-recipe {
   font-size: 14px;
-  font-weight: 600;
-  color: var(--tg-theme-text-color, #000);
+  font-weight: 700;
+  color: var(--tg-theme-text-color);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 
   &.empty {
-    color: var(--tg-theme-hint-color, #ccc);
-    font-weight: normal;
+    color: var(--tg-theme-hint-color);
+    font-weight: 400;
+    font-style: italic;
+  }
+}
+
+.meal-dishes {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.meal-dish {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--tg-theme-text-color);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.meal-dish-name {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.recipe-dot {
+  color: var(--warm-olive);
+  font-size: 10px;
+  flex-shrink: 0;
+}
+
+.manual-dot {
+  color: var(--warm-terracotta);
+  font-size: 16px;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.meal-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.delete-btn {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: rgba(212, 115, 76, 0.12);
+  color: var(--warm-terracotta);
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s var(--ease-smooth);
+  flex-shrink: 0;
+
+  &:hover {
+    background: var(--warm-terracotta);
+    color: #fff;
+    transform: scale(1.1);
+  }
+
+  &:active {
+    transform: scale(0.9);
+  }
+
+  svg {
+    width: 14px;
+    height: 14px;
+  }
+}
+
+.meal-arrow {
+  color: var(--warm-hint);
+  opacity: 0.5;
+  transition: all 0.2s;
+  flex-shrink: 0;
+
+  .meal-slot:hover & {
+    opacity: 1;
+    color: var(--warm-terracotta);
+    transform: translateX(2px);
   }
 }

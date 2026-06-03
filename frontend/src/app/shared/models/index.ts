@@ -28,11 +28,21 @@ export interface Ingredient {
   unit: 'GRAM' | 'MILLILITER' | 'PIECE';
 }
 
+export interface MealPlanEntryDish {
+  id: number;
+  recipeId?: number;
+  recipeName?: string;
+  manualName?: string;
+  manualQuantity?: number;
+  manualUnit?: 'GRAM' | 'MILLILITER' | 'PIECE';
+  sortOrder: number;
+}
+
 export interface MealPlanEntry {
   id: number;
   date: string;
-  recipe: Recipe;
   mealType: 'BREAKFAST' | 'LUNCH' | 'AFTERNOON_SNACK' | 'DINNER';
+  dishes: MealPlanEntryDish[];
 }
 
 export interface ShoppingListItem {
@@ -59,10 +69,22 @@ export interface IngredientRequest {
   unit: 'GRAM' | 'MILLILITER' | 'PIECE';
 }
 
+export interface CreateDishRequest {
+  recipeId?: number;
+  manualName?: string;
+  manualQuantity?: number;
+  manualUnit?: 'GRAM' | 'MILLILITER' | 'PIECE';
+  sortOrder: number;
+}
+
 export interface CreateMealPlanEntryRequest {
   date: string;
-  recipeId: number;
   mealType: 'BREAKFAST' | 'LUNCH' | 'AFTERNOON_SNACK' | 'DINNER';
+  dishes: CreateDishRequest[];
+}
+
+export interface CreateMealPlanEntriesRequest {
+  entries: CreateMealPlanEntryRequest[];
 }
 
 export interface CreateManualItemRequest {

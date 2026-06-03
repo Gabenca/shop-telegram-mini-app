@@ -1,18 +1,51 @@
 <div class="container">
-  <h1 class="title">Рецепты</h1>
-
-  <div class="recipe-grid">
-    @for (recipe of recipes; track recipe.id) {
-      <app-recipe-card [recipe]="recipe" />
-    }
+  <div class="header-section">
+    <div class="header-left">
+      <h1 class="title">Наши рецепты</h1>
+      <span class="counter">{{ recipes.length }} рецептов</span>
+    </div>
+    <app-home-button />
   </div>
 
-  @if (recipes.length === 0) {
-    <div class="empty-state">
-      <p>Пока нет рецептов</p>
-      <p class="subtitle">Добавьте первый рецепт!</p>
+  @if (isLoading()) {
+    <div class="loading-state">
+      <div class="loading-spinner"></div>
+      <p>Загружаем рецепты...</p>
     </div>
+  } @else {
+    @if (recipes.length > 0) {
+      <div class="recipe-grid">
+        @for (recipe of recipes; track recipe.id; let i = $index) {
+          <div class="recipe-item" [style.animation-delay.ms]="i * 80">
+            <app-recipe-card [recipe]="recipe" (cardClick)="navigateToRecipe(recipe)" />
+          </div>
+        }
+      </div>
+    } @else {
+      <div class="empty-state">
+        <div class="empty-illustration">
+          <svg width="120" height="120" viewBox="0 0 120 120" fill="none">
+            <circle cx="60" cy="60" r="50" stroke="#D4734C" stroke-width="2" opacity="0.3"/>
+            <ellipse cx="60" cy="65" rx="30" ry="20" stroke="#D4734C" stroke-width="2" opacity="0.4"/>
+            <line x1="35" y1="50" x2="35" y2="30" stroke="#7A8B6E" stroke-width="3" stroke-linecap="round" opacity="0.5"/>
+            <line x1="85" y1="50" x2="85" y2="30" stroke="#7A8B6E" stroke-width="3" stroke-linecap="round" opacity="0.5"/>
+            <path d="M35 30 L30 25 M35 30 L40 25" stroke="#7A8B6E" stroke-width="2" stroke-linecap="round" opacity="0.5"/>
+            <path d="M85 30 L80 25 M85 30 L90 25" stroke="#7A8B6E" stroke-width="2" stroke-linecap="round" opacity="0.5"/>
+          </svg>
+        </div>
+        <h2 class="empty-title">Пока нет рецептов</h2>
+        <p class="empty-subtitle">Добавьте ваш первый рецепт, чтобы начать</p>
+        <button class="btn-warm-primary" (click)="addRecipe()">Добавить рецепт</button>
+      </div>
+    }
   }
 
-  <button class="fab" (click)="addRecipe()">+</button>
+  @if (recipes.length > 0) {
+    <button class="fab" (click)="addRecipe()" aria-label="Добавить рецепт">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="12" y1="5" x2="12" y2="19"></line>
+        <line x1="5" y1="12" x2="19" y2="12"></line>
+      </svg>
+    </button>
+  }
 </div>

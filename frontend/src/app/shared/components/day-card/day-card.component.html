@@ -1,14 +1,77 @@
 <div class="day-card">
-  <div class="day-header">{{ dayName }}, {{ date | date:'d MMM':'ru' }}</div>
+  <div class="day-header">
+    <span class="day-name">{{ dayName }}</span>
+    <span class="day-date">{{ date | date:'d MMM':'ru' }}</span>
+  </div>
 
   <div class="meal-slots">
     @for (meal of mealTypes; track meal.type) {
-      <div class="meal-slot" (click)="onSlotClick(meal.type)">
-        <span class="meal-icon">{{ meal.icon }}</span>
-        <span class="meal-label">{{ meal.label }}:</span>
-        <span class="meal-recipe" [class.empty]="getRecipeForMeal(meal.type) === '—'">
-          {{ getRecipeForMeal(meal.type) }}
-        </span>
+      @let entry = getEntry(meal.type);
+      <div class="meal-slot" (click)="onSlotClick(meal.type)" role="button" tabindex="0">
+        <div class="meal-icon">
+          @switch (meal.icon) {
+            @case ('breakfast') {
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M18 8h1a4 4 0 0 1 0 8h-1"></path>
+                <path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"></path>
+                <line x1="6" y1="1" x2="6" y2="4"></line>
+                <line x1="10" y1="1" x2="10" y2="4"></line>
+                <line x1="14" y1="1" x2="14" y2="4"></line>
+              </svg>
+            }
+            @case ('lunch') {
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 20h9"></path>
+                <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
+              </svg>
+            }
+            @case ('snack') {
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+                <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+              </svg>
+            }
+            @case ('dinner') {
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+              </svg>
+            }
+          }
+        </div>
+        <div class="meal-info">
+          <span class="meal-label">{{ meal.label }}</span>
+          @if (entry && getDishes(entry).length > 0) {
+            <div class="meal-dishes">
+              @for (dish of getDishes(entry); track dish.id) {
+                <div class="meal-dish">
+                  @if (isManual(dish)) {
+                    <span class="manual-dot" title="Вручную">•</span>
+                  } @else {
+                    <span class="recipe-dot" title="Рецепт">★</span>
+                  }
+                  <span class="meal-dish-name">{{ getDishDisplayName(dish) }}</span>
+                </div>
+              }
+            </div>
+          } @else {
+            <span class="meal-recipe empty">—</span>
+          }
+        </div>
+        <div class="meal-actions">
+          @if (entry) {
+            <button class="delete-btn" (click)="onDeleteEntry(entry.id, $event)" aria-label="Удалить">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+              </svg>
+            </button>
+          }
+          <div class="meal-arrow">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="9 18 15 12 9 6"></polyline>
+            </svg>
+          </div>
+        </div>
       </div>
     }
   </div>

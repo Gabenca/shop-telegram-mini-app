@@ -1,12 +1,48 @@
-.container {
-  padding-bottom: 80px;
+.loading-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 80px 24px;
+  gap: 16px;
+
+  p {
+    font-size: 15px;
+    color: var(--tg-theme-hint-color);
+  }
+}
+
+.loading-spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid var(--warm-border);
+  border-top-color: var(--warm-terracotta);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.recipe-detail {
+  position: relative;
+  min-height: 100vh;
+  padding-bottom: 120px;
+}
+
+/* Hero Section */
+.hero-section {
+  position: relative;
+  width: 100%;
 }
 
 .image-container {
+  position: relative;
   width: 100%;
-  aspect-ratio: 16 / 9;
+  height: 50vh;
+  min-height: 320px;
   overflow: hidden;
-  background: var(--tg-theme-secondary-bg-color, #f0f0f0);
 }
 
 .recipe-image {
@@ -21,136 +57,235 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 64px;
+  background: linear-gradient(135deg, var(--warm-terracotta) 0%, var(--warm-terracotta-light) 100%);
+  color: rgba(255, 255, 255, 0.8);
 }
 
+.hero-overlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 70%;
+  background: linear-gradient(to top, rgba(45, 42, 38, 0.85) 0%, rgba(45, 42, 38, 0) 100%);
+  pointer-events: none;
+}
+
+/* Actions */
 .actions {
   position: absolute;
   top: 16px;
   right: 16px;
   display: flex;
-  gap: 8px;
+  gap: 10px;
+  z-index: 10;
 }
 
 .icon-btn {
-  width: 40px;
-  height: 40px;
+  width: 44px;
+  height: 44px;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.9);
-  border: none;
-  font-size: 20px;
-  cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
+  cursor: pointer;
+  transition: all 0.25s var(--ease-bounce);
+
+  &.glass {
+    background: rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    color: #fff;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.35);
+      transform: scale(1.08);
+    }
+
+    &:active {
+      transform: scale(0.92);
+    }
+  }
+
+  &.danger:hover {
+    background: rgba(199, 91, 91, 0.8);
+  }
+}
+
+/* Hero Title */
+.hero-title {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 24px;
+  z-index: 5;
+}
+
+.hero-home-btn {
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  z-index: 10;
 }
 
 .recipe-name {
-  padding: 16px 16px 8px;
-  font-size: 24px;
-  font-weight: bold;
-  margin: 0;
-  color: var(--tg-theme-text-color, #000);
+  font-family: var(--font-display);
+  font-size: 28px;
+  font-weight: 700;
+  color: #fff;
+  line-height: 1.2;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+/* Info Card */
+.info-card {
+  position: relative;
+  margin-top: -20px;
+  background: var(--tg-theme-bg-color);
+  border-radius: var(--radius-2xl) var(--radius-2xl) 0 0;
+  padding: 24px;
+  z-index: 10;
 }
 
 .recipe-description {
-  padding: 0 16px 16px;
-  font-size: 14px;
-  color: var(--tg-theme-hint-color, #888);
-  margin: 0;
+  font-family: var(--font-body);
+  font-size: 15px;
+  line-height: 1.7;
+  color: var(--warm-text-secondary);
+  margin-bottom: 24px;
 }
 
+/* Tabs */
 .tabs {
   display: flex;
-  border-bottom: 1px solid var(--tg-theme-hint-color, #eee);
-  margin: 0 16px;
+  margin-bottom: 20px;
+  border-bottom: 2px solid var(--warm-border);
 }
 
 .tab {
   flex: 1;
-  padding: 12px;
+  padding: 14px;
   background: none;
   border: none;
-  border-bottom: 2px solid transparent;
-  font-size: 14px;
+  font-family: var(--font-body);
+  font-size: 15px;
   font-weight: 600;
-  color: var(--tg-theme-hint-color, #888);
+  color: var(--tg-theme-hint-color);
   cursor: pointer;
-  transition: all 0.2s;
+  position: relative;
+  transition: color 0.2s;
+
+  &::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 20%;
+    right: 20%;
+    height: 3px;
+    border-radius: 3px;
+    background: var(--warm-terracotta);
+    transform: scaleX(0);
+    transition: transform 0.3s var(--ease-out-expo);
+  }
 
   &.active {
-    color: var(--tg-theme-button-color, #4fc3f7);
-    border-bottom-color: var(--tg-theme-button-color, #4fc3f7);
+    color: var(--warm-terracotta);
+
+    &::after {
+      transform: scaleX(1);
+    }
   }
 }
 
 .tab-content {
-  padding: 16px;
+  min-height: 200px;
 }
 
+/* Ingredients */
 .ingredients-list {
-  list-style: none;
-  padding: 0;
   margin: 0;
+  padding: 0;
 }
 
 .ingredient-item {
   display: flex;
   justify-content: space-between;
-  padding: 12px 0;
-  border-bottom: 1px solid var(--tg-theme-hint-color, #eee);
+  align-items: center;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--warm-border);
+  animation: fadeInUp 0.4s var(--ease-out-expo) both;
 
-  &:last-child {
+  &.last {
     border-bottom: none;
   }
 }
 
 .ingredient-name {
-  color: var(--tg-theme-text-color, #000);
+  font-family: var(--font-body);
+  font-size: 15px;
+  color: var(--tg-theme-text-color);
 }
 
 .ingredient-amount {
-  color: var(--tg-theme-hint-color, #888);
-  font-weight: 600;
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--warm-terracotta);
+  font-variant-numeric: tabular-nums;
 }
 
 .instructions {
+  font-family: var(--font-body);
+  font-size: 15px;
+  line-height: 1.8;
+  color: var(--tg-theme-text-color);
   white-space: pre-wrap;
-  line-height: 1.6;
-  color: var(--tg-theme-text-color, #000);
 }
 
-.btn-add-to-plan {
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 40px 24px;
+  color: var(--tg-theme-hint-color);
+
+  p {
+    font-size: 15px;
+  }
+}
+
+/* Sticky Actions */
+.sticky-actions {
   position: fixed;
-  bottom: 24px;
-  left: 16px;
-  right: 16px;
-  padding: 16px;
-  background: var(--tg-theme-button-color, #4fc3f7);
-  color: var(--tg-theme-button-text-color, #000);
-  border: none;
-  border-radius: 12px;
-  font-size: 16px;
-  font-weight: 600;
-  cursor: pointer;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 16px 24px 32px;
+  background: linear-gradient(to top, var(--tg-theme-bg-color) 70%, transparent);
+  z-index: 50;
 }
 
+/* Modal */
 .modal-form {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 20px;
 }
 
 .form-section {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 10px;
 }
 
 .form-label {
+  font-family: var(--font-body);
   font-size: 14px;
-  font-weight: 600;
-  color: var(--tg-theme-text-color, #000);
+  font-weight: 700;
+  color: var(--tg-theme-text-color);
 }
 
 .days-grid {
@@ -161,32 +296,70 @@
 
 .day-checkbox {
   display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: 4px;
-  font-size: 14px;
+  justify-content: center;
+  padding: 14px 4px;
+  border-radius: var(--radius-md);
+  background: var(--tg-theme-secondary-bg-color);
   cursor: pointer;
+  transition: all 0.2s var(--ease-smooth);
+  border: 2px solid transparent;
 
   input {
-    cursor: pointer;
+    display: none;
+  }
+
+  span {
+    font-family: var(--font-body);
+    font-size: 13px;
+    color: var(--tg-theme-text-color);
+    text-align: center;
+    font-weight: 600;
+  }
+
+  &.selected {
+    background: rgba(212, 115, 76, 0.15);
+    border-color: var(--warm-terracotta);
+
+    span {
+      color: var(--warm-terracotta);
+    }
+  }
+
+  &:hover:not(.selected) {
+    border-color: var(--warm-border);
   }
 }
 
-.form-select {
-  padding: 12px;
-  border: 1px solid var(--tg-theme-hint-color, #ccc);
-  border-radius: 8px;
-  font-size: 14px;
-  background: var(--tg-theme-bg-color, #fff);
-  color: var(--tg-theme-text-color, #000);
+.meal-select-wrapper {
+  position: relative;
 }
 
-.btn-primary {
-  padding: 12px;
-  background: var(--tg-theme-button-color, #4fc3f7);
-  color: var(--tg-theme-button-text-color, #000);
-  border: none;
-  border-radius: 8px;
-  font-size: 14px;
-  font-weight: 600;
+.form-select {
+  width: 100%;
+  padding: 14px 40px 14px 16px;
+  border: 1px solid var(--warm-border);
+  border-radius: var(--radius-md);
+  font-family: var(--font-body);
+  font-size: 15px;
+  background: var(--tg-theme-bg-color);
+  color: var(--tg-theme-text-color);
+  appearance: none;
   cursor: pointer;
+  transition: all 0.2s;
+
+  &:focus {
+    border-color: var(--warm-terracotta);
+    box-shadow: 0 0 0 3px rgba(212, 115, 76, 0.15);
+  }
+}
+
+.select-arrow {
+  position: absolute;
+  right: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--tg-theme-hint-color);
+  pointer-events: none;
 }

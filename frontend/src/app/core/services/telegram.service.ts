@@ -64,26 +64,30 @@ export class TelegramService {
 
   openCamera(callback: (photo: string) => void) {
     if (!this.isTelegramWebApp) return;
-    const wa = this.webApp as any;
-    wa.openCamera({
-      capture: 'camera'
-    }, (photo: string) => {
-      if (photo) {
-        callback(photo);
-      }
-    });
+    const wa = this.webApp as WebApp & { openCamera?: (options: { capture: string }, cb: (photo: string) => void) => void };
+    if (typeof wa.openCamera === 'function') {
+      wa.openCamera({
+        capture: 'camera'
+      }, (photo: string) => {
+        if (photo) {
+          callback(photo);
+        }
+      });
+    }
   }
 
   openGallery(callback: (photo: string) => void) {
     if (!this.isTelegramWebApp) return;
-    const wa = this.webApp as any;
-    wa.openGallery({
-      multiple: false
-    }, (photo: string) => {
-      if (photo) {
-        callback(photo);
-      }
-    });
+    const wa = this.webApp as WebApp & { openGallery?: (options: { multiple: boolean }, cb: (photo: string) => void) => void };
+    if (typeof wa.openGallery === 'function') {
+      wa.openGallery({
+        multiple: false
+      }, (photo: string) => {
+        if (photo) {
+          callback(photo);
+        }
+      });
+    }
   }
 
   share(url: string, text?: string) {
@@ -102,6 +106,25 @@ export class TelegramService {
       title,
       message,
       buttons
+    });
+  }
+
+  showConfirm(title: string, message: string): Promise<boolean> {
+    return new Promise((resolve) => {
+      if (!this.isTelegramWebApp) {
+        resolve(confirm(message));
+        return;
+      }
+      this.webApp!.showPopup({
+        title,
+        message,
+        buttons: [
+          { id: 'cancel', type: 'cancel' },
+          { id: 'ok', type: 'default', text: 'OK' }
+        ]
+      }, (buttonId?: string) => {
+        resolve(buttonId === 'ok');
+      });
     });
   }
 

@@ -1,63 +1,123 @@
-@if (recipe) {
-  <div class="container">
-    <div class="image-container">
-      @if (recipe.photoUrl) {
-        <img [src]="'/api/recipes/photo/' + recipe.photoUrl" [alt]="recipe.name" class="recipe-image" />
-      } @else {
-        <div class="placeholder-image">📷</div>
-      }
+@if (isLoading()) {
+  <div class="loading-state">
+    <div class="loading-spinner"></div>
+    <p>Загружаем рецепт...</p>
+  </div>
+}
+
+@if (recipe(); as r) {
+  <div class="recipe-detail">
+    <!-- Hero Image -->
+    <div class="hero-section">
+      <div class="image-container">
+        @if (r.photoUrl) {
+          <img [src]="'/api/recipes/photo/' + r.photoUrl" [alt]="r.name" class="recipe-image" />
+        } @else {
+          <div class="placeholder-image">
+            <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+              <circle cx="8.5" cy="8.5" r="1.5"></circle>
+              <polyline points="21 15 16 10 5 21"></polyline>
+            </svg>
+          </div>
+        }
+        <div class="hero-overlay"></div>
+      </div>
+
+      <!-- Actions -->
+      <div class="actions">
+        <button class="icon-btn glass" (click)="editRecipe()" aria-label="Редактировать рецепт">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4L18.5 2.5z"></path>
+          </svg>
+        </button>
+        <button class="icon-btn glass danger" (click)="deleteRecipe()" aria-label="Удалить рецепт">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="3 6 5 6 21 6"></polyline>
+            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+          </svg>
+        </button>
+      </div>
+
+      <!-- Title over image -->
+      <div class="hero-title">
+        <h1 class="recipe-name">{{ r.name }}</h1>
+      </div>
+
+      <!-- Home Button - top left over hero -->
+      <div class="hero-home-btn">
+        <app-home-button />
+      </div>
     </div>
 
-    <div class="actions">
-      <button class="icon-btn" (click)="editRecipe()">✏️</button>
-      <button class="icon-btn" (click)="deleteRecipe()">🗑️</button>
-    </div>
+    <!-- Info Card -->
+    <div class="info-card">
+      <p class="recipe-description">{{ r.description }}</p>
 
-    <h1 class="recipe-name">{{ recipe.name }}</h1>
-    <p class="recipe-description">{{ recipe.description }}</p>
+      <!-- Tabs -->
+      <div class="tabs">
+        <button
+          class="tab"
+          [class.active]="activeTab === 'ingredients'"
+          (click)="setTab('ingredients')">
+          Ингредиенты
+        </button>
+        <button
+          class="tab"
+          [class.active]="activeTab === 'instructions'"
+          (click)="setTab('instructions')">
+          Приготовление
+        </button>
+      </div>
 
-    <div class="tabs">
-      <button
-        class="tab"
-        [class.active]="activeTab === 'ingredients'"
-        (click)="setTab('ingredients')">
-        Ингредиенты
-      </button>
-      <button
-        class="tab"
-        [class.active]="activeTab === 'instructions'"
-        (click)="setTab('instructions')">
-        Приготовление
-      </button>
-    </div>
-
-    <div class="tab-content">
-      @if (activeTab === 'ingredients') {
-        <ul class="ingredients-list">
-          @for (ingredient of recipe.ingredients; track ingredient.id) {
-            <li class="ingredient-item">
-              <span class="ingredient-name">{{ ingredient.name }}</span>
-              <span class="ingredient-amount">{{ ingredient.quantity }} {{ ingredient.unit === 'GRAM' ? 'г' : ingredient.unit === 'MILLILITER' ? 'мл' : 'шт' }}</span>
-            </li>
+      <div class="tab-content">
+        @if (activeTab === 'ingredients') {
+          @if (r.ingredients.length === 0) {
+            <div class="empty-state">
+              <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" opacity="0.3">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="12" y1="8" x2="12" y2="12"></line>
+                <line x1="12" y1="16" x2="12.01" y2="16"></line>
+              </svg>
+              <p>Нет ингредиентов</p>
+            </div>
+          } @else {
+            <ul class="ingredients-list">
+              @for (ingredient of r.ingredients; track ingredient.id; let last = $last) {
+                <li class="ingredient-item" [class.last]="last">
+                  <span class="ingredient-name">{{ ingredient.name }}</span>
+                  <span class="ingredient-amount">{{ ingredient.quantity }} {{ ingredient.unit | unit }}</span>
+                </li>
+              }
+            </ul>
           }
-        </ul>
-      } @else {
-        <div class="instructions">{{ recipe.instructions }}</div>
-      }
+        } @else {
+          <div class="instructions">{{ r.instructions }}</div>
+        }
+      </div>
     </div>
 
-    <button class="btn-add-to-plan" (click)="openAddToPlanModal()">
-      + Добавить в план
-    </button>
+    <!-- Sticky Add Button -->
+    <div class="sticky-actions safe-bottom">
+      <button class="btn-warm-primary" (click)="openAddToPlanModal()">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="12" y1="5" x2="12" y2="19"></line>
+          <line x1="5" y1="12" x2="19" y2="12"></line>
+        </svg>
+        Добавить в план
+      </button>
+    </div>
   </div>
 
+  <!-- Add to Plan Modal -->
   <app-modal [isOpen]="showAddToPlanModal" title="Добавить в план" (close)="closeAddToPlanModal()">
     <div class="modal-form">
       <div class="form-section">
         <label class="form-label">Выберите дни:</label>
         <div class="days-grid">
           @for (day of dayNames; track day; let i = $index) {
-            <label class="day-checkbox">
+            <label class="day-checkbox" [class.selected]="selectedDays[i]">
               <input type="checkbox" [(ngModel)]="selectedDays[i]" />
               <span>{{ day }}</span>
             </label>
@@ -67,14 +127,19 @@
 
       <div class="form-section">
         <label class="form-label">Приём пищи:</label>
-        <select [(ngModel)]="selectedMealType" class="form-select">
-          @for (type of mealTypes; track type.value) {
-            <option [value]="type.value">{{ type.label }}</option>
-          }
-        </select>
+        <div class="meal-select-wrapper">
+          <select [(ngModel)]="selectedMealType" class="form-select">
+            @for (type of mealTypes; track type.value) {
+              <option [value]="type.value">{{ type.label }}</option>
+            }
+          </select>
+          <svg class="select-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="6 9 12 15 18 9"></polyline>
+          </svg>
+        </div>
       </div>
 
-      <button class="btn-primary" (click)="addToPlan()">Добавить</button>
+      <button class="btn-warm-primary" (click)="addToPlan()">Добавить</button>
     </div>
   </app-modal>
 }

@@ -1,11 +1,29 @@
-<div class="container">
-  <h1 class="title">Планировщик питания</h1>
+<div class="home-container grain-bg">
+  <!-- Decorative blob -->
+  <div class="blob blob-1" aria-hidden="true"></div>
+  <div class="blob blob-2" aria-hidden="true"></div>
+
+  <div class="welcome-section">
+    <h1 class="greeting">Привет!</h1>
+    <p class="subtitle">С чем готовим сегодня?</p>
+    <p class="description">Ваш личный планировщик питания для двоих</p>
+  </div>
 
   <div class="sections-grid">
-    @for (section of sections; track section.route) {
-      <div class="section-card" (click)="navigateTo(section.route)">
-        <div class="section-icon">{{ section.icon }}</div>
-        <div class="section-title">{{ section.title }}</div>
+    @for (section of sections; track section.route; let i = $index) {
+      <div
+        class="section-card"
+        [style.animation-delay.ms]="i * 100"
+        (click)="navigateTo(section.route)"
+        (keydown.enter)="navigateTo(section.route)"
+        role="button"
+        tabindex="0"
+        [attr.aria-label]="section.title">
+        <div class="card-background" [style.background]="section.gradient"></div>
+        <div class="card-content">
+          <div class="section-icon" [innerHTML]="section.iconSvg"></div>
+          <div class="section-title">{{ section.title }}</div>
+        </div>
       </div>
     }
   </div>

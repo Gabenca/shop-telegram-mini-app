@@ -1,37 +1,207 @@
 <div class="container">
-  <h1 class="title">План на неделю</h1>
-  <div class="week-range">{{ getWeekRange() }}</div>
+  <div class="header-section">
+    <div class="header-left">
+      <h1 class="title">План на неделю</h1>
+      <div class="week-range">{{ weekRange() }}</div>
+    </div>
+    <app-home-button />
+  </div>
 
   <div class="week-nav">
-    <button class="nav-btn" (click)="previousWeek()">← Пред.</button>
-    <button class="nav-btn" (click)="nextWeek()">След. →</button>
+    <button class="nav-btn" (click)="previousWeek()" aria-label="Предыдущая неделя">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="15 18 9 12 15 6"></polyline>
+      </svg>
+    </button>
+    <span class="week-label">{{ weekRange() }}</span>
+    <button class="nav-btn" (click)="nextWeek()" aria-label="Следующая неделя">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="9 18 15 12 9 6"></polyline>
+      </svg>
+    </button>
   </div>
 
-  <div class="days-list">
-    @for (day of days; track day.date) {
-      <app-day-card
-        [date]="day.date"
-        [dayName]="day.dayName"
-        [entries]="day.entries"
-        (slotClick)="onSlotClick($event)"
-      />
-    }
-  </div>
+  @if (isLoading()) {
+    <div class="loading-state">
+      <div class="loading-spinner"></div>
+      <p>Загружаем план...</p>
+    </div>
+  } @else {
+    <div class="days-list">
+      @for (day of days; track day.date; let i = $index) {
+        <div class="day-wrapper" [style.animation-delay.ms]="i * 80">
+          <app-day-card
+            [date]="day.date"
+            [dayName]="day.dayName"
+            [entries]="day.entries"
+            (slotClick)="onSlotClick($event)"
+            (deleteEntry)="onDeleteEntry($event)"
+          />
+        </div>
+      }
+    </div>
 
-  <button class="btn-generate" (click)="generateShoppingList()">
-    Сгенерировать список покупок
-  </button>
-</div>
-
-<app-modal [isOpen]="showRecipeModal" title="Выберите рецепт" (close)="closeRecipeModal()">
-  <div class="recipe-list">
-    @for (recipe of recipes; track recipe.id) {
-      <div class="recipe-option" (click)="selectRecipe(recipe)">
-        {{ recipe.name }}
+    @if (isEmptyWeek()) {
+      <div class="empty-state">
+        <div class="empty-illustration">
+          <svg width="120" height="120" viewBox="0 0 120 120" fill="none">
+            <rect x="25" y="20" width="70" height="80" rx="8" stroke="#7A8B6E" stroke-width="2" opacity="0.3"/>
+            <line x1="35" y1="40" x2="85" y2="40" stroke="#7A8B6E" stroke-width="2" opacity="0.3"/>
+            <line x1="35" y1="55" x2="85" y2="55" stroke="#7A8B6E" stroke-width="2" opacity="0.3"/>
+            <line x1="35" y1="70" x2="85" y2="70" stroke="#7A8B6E" stroke-width="2" opacity="0.3"/>
+            <line x1="35" y1="85" x2="60" y2="85" stroke="#7A8B6E" stroke-width="2" opacity="0.3"/>
+            <path d="M60 30 L55 20 L65 20 Z" fill="#D4734C" opacity="0.4"/>
+            <line x1="60" y1="20" x2="60" y2="10" stroke="#D4734C" stroke-width="2" opacity="0.4"/>
+          </svg>
+        </div>
+        <h2 class="empty-title">Нет запланированных блюд</h2>
+        <p class="empty-subtitle">Нажмите на слот, чтобы добавить блюда</p>
       </div>
     }
-    @if (recipes.length === 0) {
-      <div class="empty-state">Нет рецептов</div>
+  }
+
+  <div class="sticky-actions safe-bottom">
+    <button class="btn-generate" (click)="generateShoppingList()">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="20 6 9 17 4 12"></polyline>
+      </svg>
+      Сгенерировать список покупок
+    </button>
+  </div>
+</div>
+
+<app-modal
+  [isOpen]="showRecipeModal"
+  [title]="editingEntry ? 'Редактировать приём пищи' : 'Добавить блюда'"
+  (close)="closeRecipeModal()"
+>
+  <div class="entry-editor">
+    @if (modalDishes.length > 0) {
+      <div class="form-section">
+        <label class="form-label">Текущие блюда:</label>
+        <div class="dishes-list">
+          @for (dish of modalDishes; track $index) {
+            <div class="dish-item">
+              <span class="dish-name">{{ getDishDisplayName(dish) }}</span>
+              <button class="dish-remove" (click)="removeDishFromModal($index)" aria-label="Удалить">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <line x1="18" y1="6" x2="6" y2="18"></line>
+                  <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+              </button>
+            </div>
+          }
+        </div>
+      </div>
     }
+
+    <div class="form-section">
+      <label class="form-label">Добавить блюдо:</label>
+
+      @if (isManualMode) {
+        <div class="manual-form">
+          <div class="form-group">
+            <input
+              type="text"
+              class="form-input"
+              [(ngModel)]="newManualName"
+              placeholder="Например: Гречка 250г"
+            />
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <input
+                type="number"
+                class="form-input"
+                [(ngModel)]="newManualQuantity"
+                placeholder="0"
+              />
+            </div>
+            <div class="form-group">
+              <div class="select-wrapper">
+                <select class="form-select" [(ngModel)]="newManualUnit">
+                  @for (unit of units; track unit.value) {
+                    <option [value]="unit.value">{{ unit.label }}</option>
+                  }
+                </select>
+                <svg class="select-arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="6 9 12 15 18 9"></polyline>
+                </svg>
+              </div>
+            </div>
+          </div>
+          <div class="manual-actions">
+            <button class="btn btn-back" type="button" (click)="toggleManualMode()">Отмена</button>
+            <button class="btn btn-primary" type="button" (click)="addManualDish()">Добавить</button>
+          </div>
+        </div>
+      } @else {
+        <div class="recipe-list-modal">
+          @for (recipe of recipes; track recipe.id) {
+            <div class="recipe-option" (click)="selectRecipe(recipe)">
+              <span class="recipe-option-name">{{ recipe.name }}</span>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="9 18 15 12 9 6"></polyline>
+              </svg>
+            </div>
+          }
+          @if (recipes.length === 0) {
+            <div class="empty-modal">Нет рецептов</div>
+          }
+        </div>
+
+        @if (selectedRecipe) {
+          <button class="btn btn-primary add-recipe-btn" type="button" (click)="addCurrentRecipeToDishes()">
+            Добавить «{{ selectedRecipe.name }}» в список
+          </button>
+        }
+
+        <button class="manual-toggle" type="button" (click)="toggleManualMode()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="12" y1="5" x2="12" y2="19"></line>
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+          </svg>
+          Добавить вручную
+        </button>
+      }
+    </div>
+
+    @if (!editingEntry) {
+      <div class="form-section">
+        <label class="form-label">Дни недели:</label>
+        <div class="days-grid">
+          @for (day of dayNames; track day; let i = $index) {
+            <label class="day-checkbox" [class.selected]="modalDays[i]">
+              <input type="checkbox" [(ngModel)]="modalDays[i]" />
+              <span>{{ day }}</span>
+            </label>
+          }
+        </div>
+      </div>
+
+      <div class="form-section">
+        <label class="form-label">Приёмы пищи:</label>
+        <div class="meals-grid">
+          @for (meal of mealTypes; track meal.type) {
+            <label class="meal-checkbox" [class.selected]="modalMealTypes[meal.type]">
+              <input type="checkbox" [(ngModel)]="modalMealTypes[meal.type]" />
+              <span>{{ meal.icon }} {{ meal.label }}</span>
+            </label>
+          }
+        </div>
+      </div>
+    }
+
+    <div class="modal-actions">
+      <button class="btn btn-back" type="button" (click)="closeRecipeModal()">Отмена</button>
+      <button
+        class="btn btn-primary"
+        type="button"
+        (click)="saveEntry()"
+        [disabled]="modalDishes.length === 0"
+      >
+        {{ editingEntry ? 'Сохранить' : 'Добавить' }}
+      </button>
+    </div>
   </div>
 </app-modal>

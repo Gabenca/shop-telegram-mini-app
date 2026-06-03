@@ -1,22 +1,29 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject, DestroyRef, signal, ChangeDetectionStrategy, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ShoppingListService } from '../../shared/services/shopping-list.service';
 import { TelegramService } from '../../core/services/telegram.service';
+import { HomeButtonComponent } from '../../shared/components/home-button/home-button.component';
 import { ModalComponent } from '../../shared/components/modal/modal.component';
 import { ShoppingListItem } from '../../shared/models';
+import { formatDate, getMonday, formatWeekRange } from '../../shared/utils/date.utils';
+import { UnitPipe } from '../../shared/pipes/unit.pipe';
 
 @Component({
   selector: 'app-shopping-list',
   standalone: true,
-  imports: [CommonModule, FormsModule, ModalComponent],
+  imports: [CommonModule, FormsModule, HomeButtonComponent, ModalComponent, UnitPipe],
   templateUrl: './shopping-list.component.html',
-  styleUrl: './shopping-list.component.scss'
+  styleUrl: './shopping-list.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ShoppingListComponent implements OnInit, OnDestroy {
-  weekStart: Date = new Date();
+  weekStart = signal<Date>(new Date());
   items: ShoppingListItem[] = [];
+  isLoading = signal(false);
+  weekRange = computed(() => formatWeekRange(this.weekStart()));
 
   showAddModal = false;
   newItemName = '';
@@ -29,6 +36,8 @@ export class ShoppingListComponent implements OnInit, OnDestroy {
     { value: 'PIECE' as const, label: 'шт' }
   ];
 
+  private destroyRef = inject(DestroyRef);
+
   constructor(
     private router: Router,
     private shoppingListService: ShoppingListService,
@@ -36,11 +45,14 @@ export class ShoppingListComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit() {
-    const dayOfWeek = this.weekStart.getDay();
-    const monday = new Date(this.weekStart);
-    monday.setDate(this.weekStart.getDate() - (dayOfWeek === 0 ? 6 : dayOfWeek - 1));
-    this.weekStart = monday;
+    this.weekStart.set(getMonday(this.weekStart()));
     this.loadShoppingList();
+
+    this.shoppingListService.getShoppingListObservable().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+      next: (items) => {
+        this.items = items;
+      }
+    });
 
     this.telegramService.showBackButton(() => {
       this.router.navigate(['/']);
@@ -52,16 +64,39 @@ export class ShoppingListComponent implements OnInit, OnDestroy {
   }
 
   loadShoppingList() {
-    const weekStartStr = this.weekStart.toISOString().split('T')[0];
-    this.shoppingListService.loadShoppingList(weekStartStr).subscribe({
-      next: (items) => {
-        this.items = items;
+    this.isLoading.set(true);
+    const weekStartStr = formatDate(this.weekStart());
+    this.shoppingListService.loadShoppingList(weekStartStr).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+      next: () => {
+        this.isLoading.set(false);
+      },
+      error: (err) => {
+        console.error('Failed to load shopping list', err);
+        this.isLoading.set(false);
       }
     });
   }
 
+  previousWeek() {
+    const prevWeek = new Date(this.weekStart());
+    prevWeek.setDate(this.weekStart().getDate() - 7);
+    this.weekStart.set(getMonday(prevWeek));
+    this.loadShoppingList();
+  }
+
+  nextWeek() {
+    const nextWeek = new Date(this.weekStart());
+    nextWeek.setDate(this.weekStart().getDate() + 7);
+    this.weekStart.set(getMonday(nextWeek));
+    this.loadShoppingList();
+  }
+
   toggleItem(item: ShoppingListItem) {
-    this.shoppingListService.toggleItemChecked(item.id).subscribe();
+    this.shoppingListService.toggleItemChecked(item.id).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+      error: (err) => {
+        console.error('Failed to toggle item', err);
+      }
+    });
     this.telegramService.hapticFeedback('light');
   }
 
@@ -79,29 +114,31 @@ export class ShoppingListComponent implements OnInit, OnDestroy {
   addItem() {
     if (!this.newItemName.trim()) return;
 
-    const weekStartStr = this.weekStart.toISOString().split('T')[0];
+    const weekStartStr = formatDate(this.weekStart());
     this.shoppingListService.addManualItem({
       ingredientName: this.newItemName,
       totalQuantity: this.newItemQuantity,
       unit: this.newItemUnit
-    }, weekStartStr).subscribe({
-      next: () => {
-        this.closeAddModal();
-        this.telegramService.hapticFeedback('medium');
+    }, weekStartStr).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+      error: (err) => {
+        console.error('Failed to add item', err);
       }
     });
+    this.closeAddModal();
+    this.telegramService.hapticFeedback('medium');
   }
 
   regenerateList() {
-    const weekStartStr = this.weekStart.toISOString().split('T')[0];
-    this.shoppingListService.regenerateShoppingList(weekStartStr).subscribe();
-  }
-
-  getWeekRange(): string {
-    const end = new Date(this.weekStart);
-    end.setDate(this.weekStart.getDate() + 6);
-    const startStr = this.weekStart.toLocaleDateString('ru-RU', { day: 'numeric', month: 'short' });
-    const endStr = end.toLocaleDateString('ru-RU', { day: 'numeric', month: 'short' });
-    return `${startStr} — ${endStr}`;
+    this.isLoading.set(true);
+    const weekStartStr = formatDate(this.weekStart());
+    this.shoppingListService.regenerateShoppingList(weekStartStr).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+      next: () => {
+        this.isLoading.set(false);
+      },
+      error: (err) => {
+        console.error('Failed to regenerate shopping list', err);
+        this.isLoading.set(false);
+      }
+    });
   }
 }

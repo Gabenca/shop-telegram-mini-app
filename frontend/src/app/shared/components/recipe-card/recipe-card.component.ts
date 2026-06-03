@@ -1,6 +1,5 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, Output, EventEmitter, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router } from '@angular/router';
 import { Recipe } from '../../models';
 
 @Component({
@@ -8,14 +7,14 @@ import { Recipe } from '../../models';
   standalone: true,
   imports: [CommonModule],
   templateUrl: './recipe-card.component.html',
-  styleUrl: './recipe-card.component.scss'
+  styleUrl: './recipe-card.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class RecipeCardComponent {
-  @Input() recipe!: Recipe;
-
-  constructor(private router: Router) {}
+  @Input({ required: true }) recipe!: Recipe;
+  @Output() cardClick = new EventEmitter<void>();
 
   onClick() {
-    this.router.navigate(['/recipes', this.recipe.id]);
+    this.cardClick.emit();
   }
 }

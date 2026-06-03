@@ -1,15 +1,17 @@
 {
   "$schema": "https://opencode.ai/config.json",
+  "skills": {
+    "paths": [".opencode/skills"]
+  },
   "lsp": true,
   "plugin": [
     "orient@learning-opportunities",
     "superpowers@git+https://github.com/obra/superpowers.git"
   ],
-  "model": "opencode-go/qwen3.7-max",
   "mcp": {
     "serena": {
       "type": "local",
-      "command": ["C:\\Users\\max99\\.local\\bin\\serena.exe", "start-mcp-server", "--context", "ide", "--project-from-cwd"],
+      "command": ["C:\\Users\\max99\\.local\\bin\\serena.exe", "start-mcp-server", "--context", "opencode", "--project-from-cwd"],
       "enabled": true
     },
     "context7": {
@@ -25,16 +27,6 @@
     "memory": {
       "type": "local",
       "command": ["cmd", "/c", "npx", "-y", "@modelcontextprotocol/server-memory"],
-      "enabled": true
-    },
-    "filesystem": {
-      "type": "local",
-      "command": ["cmd", "/c", "npx", "-y", "@modelcontextprotocol/server-filesystem", "C:\\Users\\max99\\IdeaProjects\\shop-telegram-mini"],
-      "enabled": true
-    },
-    "puppeteer": {
-      "type": "local",
-      "command": ["cmd", "/c", "npx", "-y", "@modelcontextprotocol/server-puppeteer"],
       "enabled": true
     }
   }

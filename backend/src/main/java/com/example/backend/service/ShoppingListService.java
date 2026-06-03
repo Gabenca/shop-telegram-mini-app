@@ -40,7 +40,18 @@ public class ShoppingListService {
         List<MealPlanEntry> entries = mealPlanEntryRepository.findByDateBetweenAndCoupleId(weekStart, weekEnd, coupleId);
 
         Map<String, ShoppingListItem> aggregated = entries.stream()
-                .flatMap(e -> e.getRecipe().getIngredients().stream())
+                .flatMap(e -> e.getDishes().stream())
+                .flatMap(dish -> {
+                    if (dish.getRecipe() != null) {
+                        return dish.getRecipe().getIngredients().stream();
+                    } else {
+                        com.example.backend.domain.Ingredient manualIngredient = new com.example.backend.domain.Ingredient();
+                        manualIngredient.setName(dish.getManualName());
+                        manualIngredient.setQuantity(dish.getManualQuantity() != null ? dish.getManualQuantity() : 0);
+                        manualIngredient.setUnit(dish.getManualUnit());
+                        return java.util.stream.Stream.of(manualIngredient);
+                    }
+                })
                 .collect(Collectors.groupingBy(
                         i -> i.getName().toLowerCase() + "|" + i.getUnit().name(),
                         Collectors.collectingAndThen(

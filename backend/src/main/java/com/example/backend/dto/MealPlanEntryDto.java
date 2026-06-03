@@ -4,13 +4,12 @@ import com.example.backend.domain.MealType;
 import lombok.Data;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @Data
 public class MealPlanEntryDto {
-
     private Long id;
     private LocalDate date;
-    private Long recipeId;
-    private String recipeName;
     private MealType mealType;
+    private List<MealPlanEntryDishDto> dishes;
 }

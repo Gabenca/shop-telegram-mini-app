@@ -1,1 +1,326 @@
-/* You can add global styles to this file, and also import other style files */
+/* ============================================
+   Вкусно вдвоём — Глобальные стили
+   Тёплая, уютная палитра с адаптацией под Telegram
+   ============================================ */
+
+/* --- CSS Переменные --- */
+:root {
+  /* Тёплая палитра (fallback) */
+  --warm-bg: #FDF8F3;
+  --warm-bg-rgb: 253, 248, 243;
+  --warm-card: #F5E6D3;
+  --warm-terracotta: #D4734C;
+  --warm-terracotta-light: #E08A6A;
+  --warm-olive: #7A8B6E;
+  --warm-olive-light: #94A588;
+  --warm-deep-green: #4A5D23;
+  --warm-text: #2D2A26;
+  --warm-text-secondary: #6B6560;
+  --warm-hint: #8C857B;
+  --warm-border: #E8DFD5;
+  --warm-error: #C75B5B;
+  --warm-error-light: #F5E0E0;
+  --warm-shadow: rgba(45, 42, 38, 0.08);
+  --warm-shadow-md: rgba(45, 42, 38, 0.12);
+  --warm-shadow-lg: rgba(45, 42, 38, 0.18);
+
+  /* Telegram Theme Overrides (адаптация) */
+  --tg-theme-bg-color: var(--warm-bg);
+  --tg-theme-secondary-bg-color: var(--warm-card);
+  --tg-theme-text-color: var(--warm-text);
+  --tg-theme-hint-color: var(--warm-hint);
+  --tg-theme-button-color: var(--warm-terracotta);
+  --tg-theme-button-text-color: #FFFFFF;
+  --tg-theme-link-color: var(--warm-olive);
+
+  /* Typography */
+  --font-display: 'Playfair Display', Georgia, serif;
+  --font-body: 'Nunito', 'Segoe UI', sans-serif;
+
+  /* Spacing */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 20px;
+  --radius-2xl: 24px;
+
+  /* Transitions */
+  --ease-bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-smooth: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* --- Базовый сброс --- */
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: var(--font-body);
+  color: var(--tg-theme-text-color);
+  background: var(--tg-theme-bg-color);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-display);
+  margin: 0;
+  font-weight: 700;
+  line-height: 1.2;
+  color: var(--tg-theme-text-color);
+}
+
+p {
+  margin: 0;
+}
+
+button {
+  font-family: var(--font-body);
+  cursor: pointer;
+  border: none;
+  outline: none;
+  background: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+input, textarea, select {
+  font-family: var(--font-body);
+  outline: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+ul, ol {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+a {
+  color: var(--tg-theme-link-color);
+  text-decoration: none;
+}
+
+img {
+  max-width: 100%;
+  display: block;
+}
+
+/* --- Анимации Keyframes --- */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    max-height: 0;
+  }
+  to {
+    opacity: 1;
+    max-height: 200px;
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes gentlePulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.02); }
+}
+
+@keyframes checkBounce {
+  0% { transform: scale(1); }
+  40% { transform: scale(1.25); }
+  100% { transform: scale(1); }
+}
+
+@keyframes grain {
+  0%, 100% { transform: translate(0, 0); }
+  10% { transform: translate(-5%, -10%); }
+  20% { transform: translate(-15%, 5%); }
+  30% { transform: translate(7%, -25%); }
+  40% { transform: translate(-5%, 25%); }
+  50% { transform: translate(-15%, 10%); }
+  60% { transform: translate(15%, 0%); }
+  70% { transform: translate(0%, 15%); }
+  80% { transform: translate(3%, 35%); }
+  90% { transform: translate(-10%, 10%); }
+}
+
+/* --- Утилитарные классы --- */
+.card-warm {
+  background: var(--tg-theme-secondary-bg-color);
+  border-radius: var(--radius-xl);
+  box-shadow: 0 4px 16px var(--warm-shadow);
+}
+
+.btn-warm-primary {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 16px;
+  background: linear-gradient(135deg, var(--warm-terracotta) 0%, var(--warm-terracotta-light) 100%);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius-lg);
+  font-family: var(--font-body);
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.25s var(--ease-bounce);
+  box-shadow: 0 4px 16px rgba(212, 115, 76, 0.3);
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(212, 115, 76, 0.4);
+  }
+
+  &:active {
+    transform: scale(0.97);
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+  }
+}
+
+.btn-warm-secondary {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 16px;
+  background: transparent;
+  color: var(--warm-olive);
+  border: 2px solid var(--warm-olive);
+  border-radius: var(--radius-lg);
+  font-family: var(--font-body);
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.25s var(--ease-smooth);
+
+  &:hover {
+    background: rgba(122, 139, 110, 0.1);
+    transform: translateY(-1px);
+  }
+
+  &:active {
+    transform: scale(0.97);
+  }
+}
+
+.btn-warm-danger {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 16px;
+  background: transparent;
+  color: var(--warm-error);
+  border: 1px solid var(--warm-error);
+  border-radius: var(--radius-lg);
+  font-family: var(--font-body);
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.25s var(--ease-smooth);
+
+  &:hover {
+    background: rgba(199, 91, 91, 0.1);
+  }
+
+  &:active {
+    transform: scale(0.97);
+  }
+}
+
+.text-gradient {
+  background: linear-gradient(135deg, var(--warm-terracotta) 0%, var(--warm-deep-green) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.stagger-animation {
+  animation: fadeInUp 0.5s var(--ease-out-expo) both;
+}
+
+/* Safe area для iOS */
+@supports (padding-bottom: env(safe-area-inset-bottom)) {
+  .safe-bottom {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+}
+
+/* Grain texture overlay */
+.grain-bg::before {
+  content: '';
+  position: fixed;
+  top: -50%;
+  left: -50%;
+  right: -50%;
+  bottom: -50%;
+  width: 200%;
+  height: 200%;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+  opacity: 0.025;
+  pointer-events: none;
+  z-index: 9999;
+  animation: grain 8s steps(10) infinite;
+}

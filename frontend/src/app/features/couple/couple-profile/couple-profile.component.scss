@@ -1,82 +1,165 @@
 .container {
-  padding: 24px;
+  padding: 24px 20px 60px;
+  min-height: 100vh;
+}
+
+.header-section {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 28px;
+  padding-top: 8px;
+  animation: fadeInDown 0.5s var(--ease-out-expo) both;
+}
+
+.header-left {
+  flex: 1;
+  min-width: 0;
 }
 
 .title {
-  font-size: 24px;
-  font-weight: bold;
-  margin-bottom: 24px;
-  color: var(--tg-theme-text-color, #000);
+  font-family: var(--font-display);
+  font-size: 26px;
+  font-weight: 700;
+  margin-bottom: 6px;
+  color: var(--tg-theme-text-color);
 }
 
-.section {
-  margin-bottom: 32px;
+.subtitle {
+  font-family: var(--font-body);
+  font-size: 15px;
+  color: var(--tg-theme-hint-color);
+  font-weight: 400;
 }
 
-.section-title {
-  font-size: 16px;
-  font-weight: 600;
-  margin-bottom: 12px;
-  color: var(--tg-theme-text-color, #000);
-}
-
-.users-list {
+.loading-state {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  align-items: center;
+  justify-content: center;
+  padding: 80px 24px;
+  gap: 16px;
+
+  p {
+    font-size: 15px;
+    color: var(--tg-theme-hint-color);
+  }
+}
+
+.loading-spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid var(--warm-border);
+  border-top-color: var(--warm-terracotta);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Members Card */
+.members-card {
+  background: var(--tg-theme-secondary-bg-color);
+  border-radius: var(--radius-xl);
+  padding: 24px;
+  margin-bottom: 24px;
+  box-shadow: 0 4px 16px var(--warm-shadow);
+  animation: fadeInUp 0.5s var(--ease-out-expo) both;
+}
+
+.members-list {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
 }
 
 .user-item {
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 12px;
-  background: var(--tg-theme-secondary-bg-color, #f0f0f0);
-  border-radius: 8px;
+  gap: 14px;
+  padding: 12px 16px;
+  background: var(--tg-theme-bg-color);
+  border-radius: var(--radius-lg);
+  width: 100%;
 }
 
-.user-icon {
-  font-size: 24px;
+.user-avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: rgba(212, 115, 76, 0.15);
+  color: var(--warm-terracotta);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+
+  svg {
+    width: 24px;
+    height: 24px;
+  }
 }
 
 .user-name {
-  font-size: 14px;
-  font-weight: 600;
-  color: var(--tg-theme-text-color, #000);
+  font-family: var(--font-body);
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--tg-theme-text-color);
 }
 
-.invite-code {
-  font-size: 36px;
-  font-weight: bold;
-  letter-spacing: 8px;
-  text-align: center;
-  padding: 24px;
-  background: var(--tg-theme-secondary-bg-color, #f0f0f0);
-  border-radius: 12px;
+.heart-divider {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--warm-terracotta);
+  opacity: 0.6;
+
+  svg {
+    width: 20px;
+    height: 20px;
+  }
+}
+
+/* Code Section */
+.code-section {
+  margin-bottom: 32px;
+  animation: fadeInUp 0.5s 0.1s var(--ease-out-expo) both;
+}
+
+.section-label {
+  display: block;
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--tg-theme-hint-color);
+  margin-bottom: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.code-card {
+  background: var(--tg-theme-secondary-bg-color);
+  border-radius: var(--radius-lg);
+  padding: 28px 24px;
   margin-bottom: 16px;
-  color: var(--tg-theme-text-color, #000);
+  text-align: center;
+  box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.04);
 }
 
-.btn-share {
-  width: 100%;
-  padding: 12px;
-  background: var(--tg-theme-button-color, #4fc3f7);
-  color: var(--tg-theme-button-text-color, #000);
-  border: none;
-  border-radius: 8px;
-  font-size: 14px;
-  font-weight: 600;
-  cursor: pointer;
+.code-display {
+  font-family: 'Courier New', monospace;
+  font-size: 40px;
+  font-weight: 700;
+  letter-spacing: 12px;
+  color: var(--tg-theme-text-color);
+  line-height: 1;
 }
 
-.btn-leave {
-  width: 100%;
-  padding: 12px;
-  background: #ff5252;
-  color: #fff;
-  border: none;
-  border-radius: 8px;
-  font-size: 14px;
-  font-weight: 600;
-  cursor: pointer;
+/* Leave Button */
+.btn-warm-danger {
+  animation: fadeInUp 0.5s 0.2s var(--ease-out-expo) both;
 }
