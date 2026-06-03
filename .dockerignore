@@ -1,0 +1,13 @@
+.git
+.idea
+.gradle
+node_modules
+angular
+*.iml
+docs/
+.opencode/
+.serena/
+backend/build/
+frontend/dist/
+frontend/.angular/
+frontend/node_modules/
